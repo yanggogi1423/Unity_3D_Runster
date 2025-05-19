@@ -47,6 +47,7 @@ public class PlayerMovement : MonoBehaviour
     private RaycastHit slopeHit;
     private bool exitingSlope;  //  Slope에서 점프를 지원할 수 있게!
     private bool isOnSlope;
+    
 
     //  Orientation은 바라보는 방향을 저장한다.
     public Transform orientation;
@@ -169,26 +170,22 @@ public class PlayerMovement : MonoBehaviour
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
         
         //  On Slope
-        if (isOnSlope && !exitingSlope)
+        if (OnSlope() && !exitingSlope)
         {
-            Debug.Log("Slope!");
             rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
 
-            //  너무 위로 가면 안되니깐 Slope에서 멈출 수 있도록 한다. (아래로 가는 힘을 가함)
             if (rb.linearVelocity.y > 0)
             {
                 rb.AddForce(Vector3.down * 80f, ForceMode.Force);
             }
-            
-            //  좌, 우, 하향으로 이동할 때의 문제점을 보완
+
+            //  입력이 없으면 그냥 멈춰버리게 함
             if (horizontalInput == 0 && verticalInput == 0)
             {
-                Vector3 slopeNormal = slopeHit.normal;
-                Vector3 uphillDirection = Vector3.ProjectOnPlane(Vector3.up, slopeNormal).normalized;
-                rb.AddForce(uphillDirection * 5f, ForceMode.Force);
-
+                rb.linearVelocity = Vector3.zero;
             }
         }
+
         
         else if(isGrounded)  //  땅에 닿았을때 평면 이동
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
