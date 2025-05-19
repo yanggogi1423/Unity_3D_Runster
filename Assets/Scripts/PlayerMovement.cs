@@ -179,6 +179,15 @@ public class PlayerMovement : MonoBehaviour
             {
                 rb.AddForce(Vector3.down * 80f, ForceMode.Force);
             }
+            
+            //  좌, 우, 하향으로 이동할 때의 문제점을 보완
+            if (horizontalInput == 0 && verticalInput == 0)
+            {
+                Vector3 slopeNormal = slopeHit.normal;
+                Vector3 uphillDirection = Vector3.ProjectOnPlane(Vector3.up, slopeNormal).normalized;
+                rb.AddForce(uphillDirection * 5f, ForceMode.Force);
+
+            }
         }
         
         else if(isGrounded)  //  땅에 닿았을때 평면 이동
@@ -193,27 +202,15 @@ public class PlayerMovement : MonoBehaviour
     //  Max Speed를 제한
     private void SpeedControl()
     {
-        //  평면에서 가는 거리와 동일하게 갈 수 있도록 제한한다.
-        if (isOnSlope && !exitingSlope)
+        Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+    
+        if (flatVel.magnitude > moveSpeed)
         {
-            if (rb.linearVelocity.magnitude > moveSpeed)
-            {
-                rb.linearVelocity = rb.linearVelocity.normalized * moveSpeed;
-            }
-        }
-        else
-        {
-            //  평면에서의 속도
-            Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-
-            if (flatVel.magnitude > moveSpeed)
-            {
-                Vector3 limitedVel = flatVel.normalized * moveSpeed;
-                rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
-            }
+            Vector3 limitedVel = flatVel.normalized * moveSpeed;
+            rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
         }
     }
-
+    
     private void Jump()
     {
         exitingSlope = true;
