@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Numerics;
 using NUnit.Framework.Internal.Filters;
 using TMPro;
@@ -15,9 +16,16 @@ public class PlayerMovement : MonoBehaviour
     
     [Header("Movement")] 
     private float moveSpeed;
-
     public float walkSpeed;
     public float sprintSpeed;
+    public float slideSpeed;
+    public float wallRunSpeed;
+
+    private float desiredMoveSpeed;
+    private float lastDesiredMoveSpeed;
+
+    public float speedIncreaseMultiplier;
+    public float slopeIncreaseMultiplier;
 
     public float groundDrag;
     
@@ -59,15 +67,22 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 moveDirection;
 
     private Rigidbody rb;
+    private PlayerSliding ps;
     
     //  For State Machine
     public enum MovementState
     {
         Walk,
         Sprinting,
+        WallRunning,
         Crouching,
+        Sliding,
         Air
     }
+
+    public bool sliding;
+    public bool crouching;
+    public bool wallRunning;
     
     public MovementState curState;
 
@@ -75,6 +90,8 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        
+        ps = GetComponent<PlayerSliding>();
 
         readyToJump = true;
 
@@ -103,7 +120,7 @@ public class PlayerMovement : MonoBehaviour
         MovePlayer();
         
         //  For Debug
-        speedText.SetText(rb.linearVelocity.magnitude + "");
+        speedText.SetText(rb.linearVelocity.magnitude + "\n" + curState);
     }
 
     private void CheckInput()
@@ -139,28 +156,89 @@ public class PlayerMovement : MonoBehaviour
 
     private void StateHandler()
     {
+        //  WallRunning
+        if (wallRunning)
+        {
+            curState = MovementState.WallRunning;
+            desiredMoveSpeed = wallRunSpeed;
+        }
+        //  Sliding
+        else if (sliding)
+        {
+            curState = MovementState.Sliding;
+
+            if (OnSlope() && rb.linearVelocity.y < 0.1f)
+            {
+                desiredMoveSpeed = slideSpeed;
+            }
+            else
+            {
+                desiredMoveSpeed = sprintSpeed;
+            }
+        }
+
         //  Crouching
-        if (Input.GetKey(crouchKey))
+         else if (Input.GetKey(crouchKey))
         {
             curState = MovementState.Crouching;
-            moveSpeed = crouchSpeed;
+            desiredMoveSpeed = crouchSpeed;
         }
         
         //  Sprinting
         else if (isGrounded && Input.GetKey(sprintKey))
         {
             curState = MovementState.Sprinting;
-            moveSpeed = sprintSpeed;
+            desiredMoveSpeed = sprintSpeed;
         }
         else if (isGrounded)    //  Walk
         {
             curState = MovementState.Walk;
-            moveSpeed = walkSpeed;
+            desiredMoveSpeed = walkSpeed;
         }
         else    //  Air
         {
             curState = MovementState.Air;
-        }        
+        }
+        
+        //  if DesiredMoveSpeed Change Drastically -> 차이가 4이상일 때 천천히 줄어듦
+        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && moveSpeed != 0)
+        {
+            StopAllCoroutines();
+            StartCoroutine(LerpMoveSpeedCoroutine());
+        }
+        else
+        {
+            moveSpeed = desiredMoveSpeed;
+        }
+
+        lastDesiredMoveSpeed = desiredMoveSpeed;
+    }
+
+    private IEnumerator LerpMoveSpeedCoroutine()
+    {
+        float time = 0;
+        float diff = Mathf.Abs(desiredMoveSpeed - moveSpeed);
+        float startValue = moveSpeed;
+
+        while (time < diff)
+        {
+            moveSpeed = Mathf.Lerp(startValue, desiredMoveSpeed, time / diff);
+            if (OnSlope())
+            {
+                float slopeAngle = Vector3.Angle(Vector3.up, slopeHit.normal);
+                float slopeAngleIncrease = 1 + (slopeAngle / 90f);
+
+                time += Time.deltaTime * speedIncreaseMultiplier * slopeIncreaseMultiplier * slopeAngleIncrease;
+            }
+            else
+            {
+                time += Time.deltaTime;    
+            }
+            
+            yield return null;
+        }
+
+        moveSpeed = desiredMoveSpeed;
     }
     
 
@@ -172,15 +250,15 @@ public class PlayerMovement : MonoBehaviour
         //  On Slope
         if (OnSlope() && !exitingSlope)
         {
-            rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
+            rb.AddForce(GetSlopeMoveDirection(moveDirection) * moveSpeed * 20f, ForceMode.Force);
 
             if (rb.linearVelocity.y > 0)
             {
                 rb.AddForce(Vector3.down * 80f, ForceMode.Force);
             }
 
-            //  입력이 없으면 그냥 멈춰버리게 함
-            if (horizontalInput == 0 && verticalInput == 0)
+            //  입력이 없으면 그냥 멈춰버리게 함 - 슬라이딩일 때는 이를 방지
+            if (horizontalInput == 0 && verticalInput == 0 && !sliding)
             {
                 rb.linearVelocity = Vector3.zero;
             }
@@ -199,12 +277,24 @@ public class PlayerMovement : MonoBehaviour
     //  Max Speed를 제한
     private void SpeedControl()
     {
+        
         Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-    
-        if (flatVel.magnitude > moveSpeed)
+        //  슬라이딩에서는 속도 보정 조정
+        if (sliding)
         {
-            Vector3 limitedVel = flatVel.normalized * moveSpeed;
-            rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
+            if (flatVel.magnitude > moveSpeed)
+            {
+                Vector3 limitedVel = flatVel.normalized * moveSpeed;
+                rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
+            }
+        }
+        else
+        {
+            if (flatVel.magnitude > moveSpeed)
+            {
+                Vector3 limitedVel = flatVel.normalized * moveSpeed;
+                rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
+            }
         }
     }
     
@@ -215,7 +305,11 @@ public class PlayerMovement : MonoBehaviour
         //  Before Jump Need to Reset y velocity
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         
-        rb.AddForce(transform.up * jumpForce,ForceMode.Impulse);
+        Vector3 jumpVelocity = Vector3.up * Mathf.Sqrt(jumpForce * -Physics.gravity.y);
+        
+        rb.AddForce(jumpVelocity, ForceMode.Impulse);
+        
+        //  rb.AddForce(transform.up * jumpForce,ForceMode.Impulse);
     }
 
     private void ResetJump()
@@ -225,7 +319,7 @@ public class PlayerMovement : MonoBehaviour
         exitingSlope = false;
     }
 
-    private bool OnSlope()
+    public bool OnSlope()
     {
         //  Check와 동시에 out을 통해 slopeHit에 값 반환
         if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
@@ -241,8 +335,8 @@ public class PlayerMovement : MonoBehaviour
 
     //  Slope에 대하여 이동하는 방향을 검사해야 한다.
     //  Slope.normal에 대해 project한다. (슬로프 위에서 방향이 정해짐)
-    private Vector3 GetSlopeMoveDirection()
+    public Vector3 GetSlopeMoveDirection(Vector3 direction)
     {
-        return (Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized);
+        return (Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized);
     }
 }
