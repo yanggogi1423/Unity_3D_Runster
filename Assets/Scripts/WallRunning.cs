@@ -43,19 +43,36 @@ public class WallRunning : MonoBehaviour
     public Transform orientation;
 
     public CameraControll cam;
+    
     private PlayerMovement pm;
     private Rigidbody rb;
+    
+    [Header("Camera Offset")]
+    public Transform cameraContainer;             // CameraContainer (PlayerCam의 부모)
+    public Vector3 defaultCamLocalPos;            // 원래 로컬 위치 저장용
+    public float camOffsetDistance = 0.3f;         // 벽 반대쪽으로 이동할 거리
+    public float camLerpSpeed = 5f;                // 이동 속도
+    public Transform cameraPos;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         pm = GetComponent<PlayerMovement>();
+        
+        // 카메라의 기본 로컬 위치 저장
+        if (cameraContainer != null)
+        {
+            defaultCamLocalPos = cameraContainer.localPosition;
+        }
     }
 
     private void Update()
     {
         CheckInput();
         CheckForWall();
+        
+        // 벽 러닝 중 카메라 오프셋 적용
+        UpdateCameraOffset();
     }
 
     private void FixedUpdate()
@@ -152,10 +169,10 @@ public class WallRunning : MonoBehaviour
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         
         //  Camera Effects
-        cam.DoFov(90f);
+        cam.DoFov(85f);
         
-        if(wallLeft) cam.DoTilt(-7f);
-        if(wallRight) cam.DoTilt(7f);
+        if(wallLeft) cam.DoTilt(-5f);
+        if(wallRight) cam.DoTilt(5f);
     }
 
     private void WallRunningMovement()
@@ -225,4 +242,34 @@ public class WallRunning : MonoBehaviour
         //  Add Force
         rb.AddForce(jumpForceVec, ForceMode.Impulse);
     }
+    
+    private void UpdateCameraOffset()
+    {
+        if (cameraContainer == null || cameraPos == null)
+        {
+            return;
+        }
+
+        Vector3 offset = Vector3.zero;
+
+        if (pm.wallRunning && wallLeft)
+        {
+            offset += orientation.right * camOffsetDistance;
+        }
+        else if (pm.wallRunning && wallRight)
+        {
+            offset += -orientation.right * camOffsetDistance;
+        }
+
+        Vector3 targetPos = cameraPos.position + offset;
+
+        cameraContainer.position = Vector3.Lerp(
+            cameraContainer.position,
+            targetPos,
+            Time.deltaTime * camLerpSpeed
+        );
+    }
+
+
+
 }

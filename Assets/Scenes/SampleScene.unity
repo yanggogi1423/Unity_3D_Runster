@@ -383,6 +383,11 @@ MonoBehaviour:
   gravityCounterForce: 0
   orientation: {fileID: 1156914364}
   cam: {fileID: 963194229}
+  cameraContainer: {fileID: 525362658}
+  defaultCamLocalPos: {x: 0, y: 0, z: 0}
+  camOffsetDistance: 0.5
+  camLerpSpeed: 5
+  cameraPos: {fileID: 1895700364}
 --- !u!1 &495696502
 GameObject:
   m_ObjectHideFlags: 0
@@ -502,6 +507,7 @@ GameObject:
   m_Component:
   - component: {fileID: 525362658}
   - component: {fileID: 525362657}
+  - component: {fileID: 525362659}
   m_Layer: 0
   m_Name: CameraContainer
   m_TagString: Untagged
@@ -522,6 +528,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraPosition: {fileID: 1895700364}
+  pm: {fileID: 125586826}
 --- !u!4 &525362658
 Transform:
   m_ObjectHideFlags: 0
@@ -538,6 +545,27 @@ Transform:
   - {fileID: 963194228}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &525362659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525362656}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 193dbf3d71854f945b62f20c0f88ea9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerBody: {fileID: 125586825}
+  cameraPivot: {fileID: 1895700364}
+  cameraObj: {fileID: 963194228}
+  cameraDistance: 0.3
+  cameraRadius: 0.15
+  wallLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  smoothSpeed: 20
 --- !u!1 &539323244
 GameObject:
   m_ObjectHideFlags: 0
@@ -1694,7 +1722,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1449712225}
-  m_Material: {fileID: 13400000, guid: af38a1284ac5be0429d3724e5099c955, type: 2}
+  m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1707,7 +1735,7 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
-  m_Height: 2
+  m_Height: 1.8
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1449712228

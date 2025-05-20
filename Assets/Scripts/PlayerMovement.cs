@@ -1,12 +1,6 @@
-using System;
 using System.Collections;
-using System.Numerics;
-using NUnit.Framework.Internal.Filters;
 using TMPro;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Vector3 = UnityEngine.Vector3;
 
 public class PlayerMovement : MonoBehaviour
@@ -14,7 +8,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("For Debug")]
     public TMP_Text speedText;
     
-    [Header("Movement")] 
+    [Header("Movement")]
     private float moveSpeed;
     public float walkSpeed;
     public float sprintSpeed;
