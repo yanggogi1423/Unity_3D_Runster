@@ -300,6 +300,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
     
+    /*
     private void Jump()
     {
         Debug.Log("Jump!");
@@ -315,6 +316,25 @@ public class PlayerMovement : MonoBehaviour
         
         //  rb.AddForce(transform.up * jumpForce,ForceMode.Impulse);
     }
+    
+    */
+    
+    private void Jump()
+    {
+        Debug.Log("Jump!");
+
+        exitingSlope = true;
+
+        // 기존 수직 속도 제거
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+
+        // 등가속도 운동 공식 기반으로 점프 속도 계산
+        Vector3 jumpVelocity = Vector3.up * Mathf.Sqrt(jumpForce * -Physics.gravity.y);
+
+        // 점프 힘 적용
+        rb.AddForce(jumpVelocity, ForceMode.Impulse);
+    }
+
 
     private void ResetJump()
     {
