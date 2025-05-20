@@ -74,6 +74,7 @@ public class PlayerMovement : MonoBehaviour
     //  For State Machine
     public enum MovementState
     {
+        Idle,
         Walk,
         Sprinting,
         WallRunning,
@@ -159,7 +160,12 @@ public class PlayerMovement : MonoBehaviour
     private void StateHandler()
     {
         //  WallRunning
-        if (wallRunning)
+        if (rb.linearVelocity.magnitude == 0)
+        {
+            curState = MovementState.Idle;
+            desiredMoveSpeed = wallRunSpeed;
+        }
+        else if (wallRunning)
         {
             curState = MovementState.WallRunning;
             desiredMoveSpeed = wallRunSpeed;
