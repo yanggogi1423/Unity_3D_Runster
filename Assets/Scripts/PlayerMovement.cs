@@ -34,6 +34,8 @@ public class PlayerMovement : MonoBehaviour
     public float jumpCooldown;
     public float airMultiplier;
     private bool readyToJump;
+    [SerializeField] private float fallMultiplier = 2.5f;  // 하강 가속
+    [SerializeField] private float lowJumpMultiplier = 2f; // 짧게 누른 경우
 
     [Header("Crouching")] public float crouchSpeed;
     public float crouchYScale;
@@ -271,7 +273,7 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
         
         //  Slope 위에 있을 때 미끄러지지 않도록
-        rb.useGravity = !OnSlope();
+        if(!wallRunning) rb.useGravity = !OnSlope();
     }
 
     //  Max Speed를 제한
@@ -300,6 +302,8 @@ public class PlayerMovement : MonoBehaviour
     
     private void Jump()
     {
+        Debug.Log("Jump!");
+        
         exitingSlope = true;
         
         //  Before Jump Need to Reset y velocity
