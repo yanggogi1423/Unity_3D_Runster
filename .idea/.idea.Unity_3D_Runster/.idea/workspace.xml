@@ -6,9 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="657e1d0b-622f-4733-8d85-a2edc47d189a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity_3D_Runster/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity_3D_Runster/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Physics/PlayerFriction.physicMaterial" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Physics/PlayerFriction.physicMaterial" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/CameraControll.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CameraControll.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/PlayerMovement.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PlayerMovement.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/WallRunning.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/WallRunning.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,7 +118,7 @@
       <updated>1747660609728</updated>
       <workItem from="1747660611160" duration="11607000" />
       <workItem from="1747715240206" duration="24223000" />
-      <workItem from="1747828727598" duration="4209000" />
+      <workItem from="1747828727598" duration="12193000" />
     </task>
     <servers />
   </component>

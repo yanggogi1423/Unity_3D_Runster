@@ -69,6 +69,9 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
     private PlayerSliding ps;
     
+    [Header("Camera")]
+    public CameraControll cam;
+    
     //  For State Machine
     public enum MovementState
     {
@@ -160,6 +163,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void StateHandler()
     {
+        if(curState != MovementState.Sprinting && cam.isModified && !wallRunning)
+            cam.DoFov(0);   //  Sprint Fov
+        
         //  Climbing
         if (climbing)
         {
@@ -203,6 +209,7 @@ public class PlayerMovement : MonoBehaviour
         else if (isGrounded && Input.GetKey(sprintKey))
         {
             curState = MovementState.Sprinting;
+            cam.DoFov(1);   //  Sprint Fov
             desiredMoveSpeed = sprintSpeed;
         }
         else if (isGrounded)    //  Walk
@@ -287,7 +294,6 @@ public class PlayerMovement : MonoBehaviour
                 rb.linearVelocity = Vector3.zero;
             }
         }
-
         
         else if(isGrounded)  //  땅에 닿았을때 평면 이동
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
@@ -301,7 +307,6 @@ public class PlayerMovement : MonoBehaviour
     //  Max Speed를 제한
     private void SpeedControl()
     {
-        
         Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         //  슬라이딩에서는 속도 보정 조정
         if (sliding)

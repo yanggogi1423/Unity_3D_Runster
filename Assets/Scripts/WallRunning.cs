@@ -169,7 +169,7 @@ public class WallRunning : MonoBehaviour
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         
         //  Camera Effects
-        cam.DoFov(85f);
+        cam.DoFov(2);
         
         if(wallLeft) cam.DoTilt(-5f);
         if(wallRight) cam.DoTilt(5f);
@@ -221,7 +221,7 @@ public class WallRunning : MonoBehaviour
         rb.useGravity = useGravity;
         
         //  Reset Camera Effects
-        cam.DoFov(80f);
+        cam.DoFov(0);
         cam.DoTilt(0f);
     }
 
