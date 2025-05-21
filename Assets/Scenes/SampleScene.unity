@@ -240,6 +240,7 @@ GameObject:
   - component: {fileID: 125586826}
   - component: {fileID: 125586827}
   - component: {fileID: 125586828}
+  - component: {fileID: 125586829}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -309,6 +310,7 @@ MonoBehaviour:
   sprintSpeed: 10
   slideSpeed: 30
   wallRunSpeed: 8.5
+  climbSpeed: 3
   speedIncreaseMultiplier: 1.5
   slopeIncreaseMultiplier: 2.5
   groundDrag: 4
@@ -326,11 +328,14 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  isGrounded: 0
   maxSlopeAngle: 40
+  cb: {fileID: 0}
   orientation: {fileID: 1156914364}
   sliding: 0
   crouching: 0
   wallRunning: 0
+  climbing: 0
   curState: 0
 --- !u!114 &125586827
 MonoBehaviour:
@@ -388,6 +393,35 @@ MonoBehaviour:
   camOffsetDistance: 0.5
   camLerpSpeed: 5
   cameraPos: {fileID: 1895700364}
+--- !u!114 &125586829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 125586823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 813e87d8fee100b44ba0dd0ff6317425, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  orientation: {fileID: 1156914364}
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  climbSpeed: 10
+  maxClimbTime: 0.75
+  climbJumpForce: 0.7
+  climbJumpBackForce: 0.25
+  jumpKey: 32
+  climbJumps: 30
+  climbJumpsLeft: 5
+  detectionLength: 0.7
+  sphereCastRadius: 0.25
+  maxWallLookAngle: 30
+  minWallNormalAngleChange: 0
+  exitingWall: 0
+  exitWallTime: 0.2
 --- !u!1 &495696502
 GameObject:
   m_ObjectHideFlags: 0
@@ -529,6 +563,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraPosition: {fileID: 1895700364}
   pm: {fileID: 125586826}
+  followSpeed: 5
 --- !u!4 &525362658
 Transform:
   m_ObjectHideFlags: 0
@@ -1063,8 +1098,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 540fc0565a999ad4db38ed55aa5081a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sensX: 400
-  sensY: 400
+  sensX: 800
+  sensY: 800
   orientation: {fileID: 1156914364}
   cameraContainer: {fileID: 525362658}
 --- !u!1 &1000954324
@@ -1722,7 +1757,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1449712225}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: af38a1284ac5be0429d3724e5099c955, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

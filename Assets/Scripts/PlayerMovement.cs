@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     public float sprintSpeed;
     public float slideSpeed;
     public float wallRunSpeed;
+    public float climbSpeed;
 
     private float desiredMoveSpeed;
     private float lastDesiredMoveSpeed;
@@ -44,13 +45,16 @@ public class PlayerMovement : MonoBehaviour
     [Header("Ground Checking")] 
     public float playerHeight;
     public LayerMask groundLayer;
-    private bool isGrounded;
+    public bool isGrounded;
 
     [Header("Slope Checking")] //   Slope는 Ground Check했던 것보다 더 깊이 하단을 확인해야 한다. 0.3f
     public float maxSlopeAngle;
     private RaycastHit slopeHit;
     private bool exitingSlope;  //  Slope에서 점프를 지원할 수 있게!
     private bool isOnSlope;
+
+    [Header("References")]
+    public Climbing cb;
     
 
     //  Orientation은 바라보는 방향을 저장한다.
@@ -72,6 +76,7 @@ public class PlayerMovement : MonoBehaviour
         Walk,
         Sprinting,
         WallRunning,
+        Climbing,
         Crouching,
         Sliding,
         Air
@@ -80,6 +85,7 @@ public class PlayerMovement : MonoBehaviour
     public bool sliding;
     public bool crouching;
     public bool wallRunning;
+    public bool climbing;
     
     public MovementState curState;
 
@@ -89,6 +95,7 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
         
         ps = GetComponent<PlayerSliding>();
+        cb = GetComponent<Climbing>();
 
         readyToJump = true;
 
@@ -153,8 +160,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void StateHandler()
     {
+        //  Climbing
+        if (climbing)
+        {
+            curState = MovementState.Climbing;
+            desiredMoveSpeed = climbSpeed;
+        }
         //  WallRunning
-        if (rb.linearVelocity.magnitude == 0)
+        else if (rb.linearVelocity.magnitude == 0)
         {
             curState = MovementState.Idle;
             desiredMoveSpeed = wallRunSpeed;
@@ -224,6 +237,12 @@ public class PlayerMovement : MonoBehaviour
 
         while (time < diff)
         {
+            //  멈추면 다음과 같이 해결 -> 속도가 원래대로 돌아감
+            if (curState == MovementState.Idle)
+            {
+                yield break;
+            }
+            
             moveSpeed = Mathf.Lerp(startValue, desiredMoveSpeed, time / diff);
             if (OnSlope())
             {
@@ -247,6 +266,9 @@ public class PlayerMovement : MonoBehaviour
     //  NOTE : Run in Fixed Update
     private void MovePlayer()
     {
+        //  Forward 키를 무시하기 위해
+        if (cb.exitingWall) return;
+        
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
         
         //  On Slope
