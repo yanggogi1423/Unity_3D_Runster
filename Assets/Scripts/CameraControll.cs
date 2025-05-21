@@ -189,6 +189,6 @@ public class CameraControll : MonoBehaviour
 
         camOrientation.rotation = Quaternion.Euler(xRotation, yRotation, targetZ);
     }
-
+    
 
 }

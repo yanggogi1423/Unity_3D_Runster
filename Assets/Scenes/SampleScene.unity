@@ -504,23 +504,18 @@ MonoBehaviour:
   wallRunForce: 200
   wallJumpUpForce: 7
   wallJumpSideForce: 9
-  wallClimbSpeed: 1.5
-  maxWallRunTime: 1.5
+  wallClimbSpeed: 3
+  maxWallRunTime: 2
   jumpKey: 32
   upwardsRunKey: 304
   downwardsRunKey: 306
   wallCheckDistance: 0.9
   minJumpHeight: 2
-  exitWallTime: 0.5
+  exitWallTime: 0.85
   useGravity: 1
   gravityCounterForce: 0
   orientation: {fileID: 1156914364}
   cam: {fileID: 963194229}
-  cameraContainer: {fileID: 525362658}
-  defaultCamLocalPos: {x: 0, y: 0, z: 0}
-  camOffsetDistance: 0.5
-  camLerpSpeed: 5
-  cameraPos: {fileID: 1895700364}
 --- !u!114 &125586829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -538,18 +533,18 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   climbSpeed: 10
-  maxClimbTime: 0.75
+  maxClimbTime: 1
   climbJumpForce: 0.7
   climbJumpBackForce: 0.25
   jumpKey: 32
-  climbJumps: 30
-  climbJumpsLeft: 5
+  climbJumps: 1
+  climbJumpsLeft: 1
   detectionLength: 0.7
   sphereCastRadius: 0.25
   maxWallLookAngle: 30
   minWallNormalAngleChange: 0
   exitingWall: 0
-  exitWallTime: 0.2
+  exitWallTime: 0.85
 --- !u!1 &495696502
 GameObject:
   m_ObjectHideFlags: 0
@@ -1284,7 +1279,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 58
+  field of view: 60.000004
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -1311,7 +1306,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.35, z: 0.15}
+  m_LocalPosition: {x: 0, y: -1.8500001, z: -6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1343,7 +1338,6 @@ MonoBehaviour:
   isFovModified: 0
   defaultRotation: {x: 0, y: 0, z: 0}
   curRotation: {x: 0, y: 0, z: 0}
-  isTiltModified: 0
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
