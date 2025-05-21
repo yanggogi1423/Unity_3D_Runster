@@ -10,11 +10,14 @@ public class CameraControll : MonoBehaviour
     public float sensX;
     public float sensY;
 
-    public Transform orientation;
+    public Transform orientaion;
+    public Transform camOrientation;
     public Transform cameraContainer;
 
     private float xRotation;
     private float yRotation;
+    
+    private float curZTilt = 0f;
 
     [Header("Cameras")] 
     public GameObject firstCam;
@@ -51,10 +54,12 @@ public class CameraControll : MonoBehaviour
         yRotation += mouseX;
         
         xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);  //  상하 제한
+        xRotation = Mathf.Clamp(xRotation, -90f, 45f);  //  상하 제한
 
         // cameraContainer.rotation = Quaternion.Euler(xRotation, yRotation, 0);
-        orientation.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        
+        camOrientation.rotation = Quaternion.Euler(xRotation, yRotation, curZTilt);
+        orientaion.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         
         CheckInput();
     }
@@ -102,7 +107,7 @@ public class CameraControll : MonoBehaviour
     [Range(0f, 20f)] 
     public float sprintFovRange = 15f;
 
-    public bool isModified;
+    public bool isFovModified;
     private int lastMode = 0;
     
     public void DoFov(int mode)
@@ -125,32 +130,65 @@ public class CameraControll : MonoBehaviour
         switch (mode)
         {
             case 0 :
-                isModified = false;
+                isFovModified = false;
                 break;
             case 1 :
                 offsetV =  new Vector2(0, sprintFovRange);
-                isModified = true;
+                isFovModified = true;
                 break;
             case 2 :
                 offsetV =  new Vector2(0, wallFovRange);
-                isModified = true;
+                isFovModified = true;
                 break;
         }
 
-        Vector2 distVec = new Vector2(defalutFovRange.x + offsetV.x, defalutFovRange.y + offsetV.y);
+        Vector2 destVec = new Vector2(defalutFovRange.x + offsetV.x, defalutFovRange.y + offsetV.y);
 
-        while (Mathf.Abs(firstCam.GetComponent<CinemachineFollowZoom>().FovRange.magnitude - distVec.magnitude) > 0.1)
+        while (Mathf.Abs(firstCam.GetComponent<CinemachineFollowZoom>().FovRange.magnitude - destVec.magnitude) > 0.1)
         {
             firstCam.GetComponent<CinemachineFollowZoom>().FovRange = 
-                Vector2.Lerp(firstCam.GetComponent<CinemachineFollowZoom>().FovRange, distVec, 0.03f);
+                Vector2.Lerp(firstCam.GetComponent<CinemachineFollowZoom>().FovRange, destVec, 0.03f);
             yield return new WaitForSeconds(0.02f);
         }
 
-        firstCam.GetComponent<CinemachineFollowZoom>().FovRange = distVec;
+        firstCam.GetComponent<CinemachineFollowZoom>().FovRange = destVec;
     }
+
+    [Header("Tilt")] 
+    public Vector3 defaultRotation;
+    public Vector3 curRotation;
     
     public void DoTilt(float zTilt)
     {
-        transform.DOLocalRotate(new Vector3(0, 0, zTilt), 0.25f);
+        curZTilt = zTilt;
+        StopAllCoroutines();
+        StartCoroutine(TiltCoroutine(zTilt));
     }
+
+    private IEnumerator TiltCoroutine(float zTilt)
+    {
+        float t = 0f;
+        float duration = 0.25f;
+        
+        Debug.Log("Cur Tilt : " +zTilt);
+
+        float startZ = camOrientation.rotation.eulerAngles.z;
+        float targetZ = zTilt;
+        
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float progress = t / duration;
+
+            float z = Mathf.LerpAngle(startZ, targetZ, progress);
+            camOrientation.rotation = Quaternion.Euler(xRotation, yRotation, z);
+
+            yield return null;
+        }
+
+        camOrientation.rotation = Quaternion.Euler(xRotation, yRotation, targetZ);
+    }
+
+
 }

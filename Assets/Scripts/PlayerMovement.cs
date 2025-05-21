@@ -59,6 +59,7 @@ public class PlayerMovement : MonoBehaviour
 
     //  Orientation은 바라보는 방향을 저장한다.
     public Transform orientation;
+    public Transform camOrientation;
 
     //  Member로 존재해야 한다.
     private float horizontalInput;
@@ -163,7 +164,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void StateHandler()
     {
-        if(curState != MovementState.Sprinting && cam.isModified && !wallRunning)
+        if(curState != MovementState.Sprinting && cam.isFovModified && !wallRunning)
             cam.DoFov(0);   //  Sprint Fov
         
         //  Climbing
