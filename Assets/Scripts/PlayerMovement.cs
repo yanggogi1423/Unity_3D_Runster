@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
@@ -72,6 +73,9 @@ public class PlayerMovement : MonoBehaviour
     
     [Header("Camera")]
     public CameraControll cam;
+
+    [Header("Animator")] 
+    public Animator anim;
     
     //  For State Machine
     public enum MovementState
@@ -92,35 +96,44 @@ public class PlayerMovement : MonoBehaviour
     public bool climbing;
     
     public MovementState curState;
+    public MovementState lastState;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        rb.linearVelocity = Vector3.zero;
         
         ps = GetComponent<PlayerSliding>();
         cb = GetComponent<Climbing>();
-
+        
         readyToJump = true;
 
         startYScale = transform.localScale.y;
+        
+        lastState = MovementState.Idle;
     }
 
     private void Update()
     {
-        //  Player Height의 절반 + 0.2(offset)
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundLayer);
+        //  Player Height의 절반 + 0.2(offset) -> 점프가 끝난 후에 바닥 체크
+        if (readyToJump)
+        {
+            isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundLayer);    
+        }
         
         CheckInput();
         SpeedControl();
         StateHandler();
+        
+        UpdateBlendValue();
 
         isOnSlope = OnSlope();
         
         //  Handle Drag
         if (isGrounded) rb.linearDamping = groundDrag;
         else rb.linearDamping = 0;
-
+        
     }
 
     private void FixedUpdate()
@@ -129,6 +142,12 @@ public class PlayerMovement : MonoBehaviour
         
         //  For Debug
         speedText.SetText(rb.linearVelocity.magnitude + "\n" + curState);
+    }
+
+    public void PlayerRotation(float yRot)
+    {
+        Quaternion targetRot = Quaternion.Euler(0, yRot, 0);
+        rb.MoveRotation(targetRot);
     }
 
     private void CheckInput()
@@ -140,6 +159,11 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKey(jumpKey) && readyToJump && (isGrounded || isOnSlope))
         {
             readyToJump = false;
+            isGrounded = false; //  Important
+            curState = MovementState.Air;
+            anim.SetBool("isWalk", false);
+            anim.SetBool("isSprint", false);
+            anim.SetBool("isIdle", false);
 
             Jump();
             
@@ -162,6 +186,70 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void StateMachine()
+    {
+        switch (curState)
+        {
+            case MovementState.Idle:
+                anim.SetBool("isWalk", false);
+                anim.SetBool("isSprint", false);
+                anim.SetBool("isIdle", true);
+                break;
+            case MovementState.Walk:
+                anim.SetBool("isWalk", true);
+                anim.SetBool("isSprint", false);
+                break;
+            case MovementState.Sprinting:
+                anim.SetBool("isSprint", true);
+                break;
+            case MovementState.WallRunning:
+                break;
+            case MovementState.Climbing:
+                break;
+            case MovementState.Crouching:
+                break;
+            case MovementState.Sliding:
+                break;
+            case MovementState.Air:
+                break;
+        }
+    }
+    
+    private void UpdateBlendValue()
+    {
+        // 입력 벡터 기준 이동 방향 (로컬 기준)
+        Vector3 inputDir = new Vector3(horizontalInput, 0f, verticalInput);
+        if (inputDir.sqrMagnitude < 0.01f)
+        {
+            anim.SetFloat("WalkBlend", 0f); // 정지 시 정면 유지
+            return;
+        }
+
+        // 이동 방향 → 월드 방향 → 로컬 방향 변환
+        Vector3 moveDir = orientation.forward * inputDir.z + orientation.right * inputDir.x;
+        Vector3 localDir = orientation.InverseTransformDirection(moveDir.normalized);
+
+        // 방향 각도 계산 (Z 기준: 정면 0도)
+        float angle = Mathf.Atan2(localDir.x, localDir.z) * Mathf.Rad2Deg;
+        if (angle < 0f) angle += 360f;
+
+        // 방향별 구간 매핑: 0~360도 → 0~1로 사분면 블렌딩
+        float blendValue = 0f;
+
+        if (angle >= 0f && angle < 90f)         // Forward → Right
+            blendValue = Mathf.Lerp(0f, 0.333f, angle / 90f);
+        else if (angle >= 90f && angle < 180f)  // Right → Back
+            blendValue = Mathf.Lerp(0.333f, 0.666f, (angle - 90f) / 90f);
+        else if (angle >= 180f && angle < 270f) // Back → Left
+            blendValue = Mathf.Lerp(0.666f, 1f, (angle - 180f) / 90f);
+        else                                    // Left → Forward
+            blendValue = Mathf.Lerp(1f, 0f, (angle - 270f) / 90f);
+
+        anim.SetFloat("WalkBlend", blendValue);
+    }
+
+
+
     private void StateHandler()
     {
         if(curState != MovementState.Sprinting && cam.isFovModified && !wallRunning)
@@ -173,12 +261,13 @@ public class PlayerMovement : MonoBehaviour
             curState = MovementState.Climbing;
             desiredMoveSpeed = climbSpeed;
         }
-        //  WallRunning
-        else if (rb.linearVelocity.magnitude == 0)
+        //  Idle
+        else if (rb.linearVelocity.magnitude < 0.1f && isGrounded && readyToJump)
         {
             curState = MovementState.Idle;
-            desiredMoveSpeed = wallRunSpeed;
+            desiredMoveSpeed = walkSpeed;
         }
+        //  WallRunning
         else if (wallRunning)
         {
             curState = MovementState.WallRunning;
@@ -235,6 +324,14 @@ public class PlayerMovement : MonoBehaviour
         }
 
         lastDesiredMoveSpeed = desiredMoveSpeed;
+        
+        //  Call State Machine
+        if (curState != lastState)
+        {
+            StateMachine();
+        }
+
+        lastState = curState;
     }
 
     private IEnumerator LerpMoveSpeedCoroutine()
@@ -350,6 +447,8 @@ public class PlayerMovement : MonoBehaviour
     private void Jump()
     {
         Debug.Log("Jump!");
+        
+        anim.SetTrigger("jumping");
 
         exitingSlope = true;
 

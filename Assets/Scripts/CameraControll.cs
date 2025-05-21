@@ -14,6 +14,9 @@ public class CameraControll : MonoBehaviour
     public Transform camOrientation;
     public Transform cameraContainer;
 
+    [Header("Player")] 
+    public PlayerMovement pm;
+
     private float xRotation;
     private float yRotation;
     
@@ -60,6 +63,9 @@ public class CameraControll : MonoBehaviour
         
         camOrientation.rotation = Quaternion.Euler(xRotation, yRotation, curZTilt);
         orientaion.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        
+        //  Player Rotation
+        pm.PlayerRotation(yRotation);
         
         CheckInput();
     }
@@ -153,10 +159,7 @@ public class CameraControll : MonoBehaviour
 
         firstCam.GetComponent<CinemachineFollowZoom>().FovRange = destVec;
     }
-
-    [Header("Tilt")] 
-    public Vector3 defaultRotation;
-    public Vector3 curRotation;
+    
     
     public void DoTilt(float zTilt)
     {
