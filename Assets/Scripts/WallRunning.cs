@@ -46,6 +46,7 @@ public class WallRunning : MonoBehaviour
     
     private PlayerMovement pm;
     private Rigidbody rb;
+    public CapsuleCollider cc;
     
     // [Header("Camera Offset")]
     // public Transform cameraContainer;             // CameraContainer (PlayerCam의 부모)
@@ -168,6 +169,8 @@ public class WallRunning : MonoBehaviour
         else
             pm.anim.SetBool("isLeftWall", true);
         
+        //  For Animation
+        cc.radius = 0.59f;
 
         wallRunTimer = maxWallRunTime;
         Debug.Log("Reset Wall Run Time");
@@ -226,6 +229,7 @@ public class WallRunning : MonoBehaviour
         pm.wallRunning = false;
         rb.useGravity = useGravity;
         
+        cc.radius = 0.5f;
        
         pm.anim.SetBool("isRightWall", false);
         pm.anim.SetBool("isLeftWall", false);

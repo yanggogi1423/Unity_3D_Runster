@@ -47,6 +47,8 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask groundLayer;
     public bool isGrounded;
 
+    public LayerMask wallLayer;
+
     [Header("Slope Checking")] //   Slope는 Ground Check했던 것보다 더 깊이 하단을 확인해야 한다. 0.3f
     public float maxSlopeAngle;
     private RaycastHit slopeHit;
@@ -118,7 +120,8 @@ public class PlayerMovement : MonoBehaviour
         //  Player Height의 절반 + 0.2(offset) -> 점프가 끝난 후에 바닥 체크
         if (readyToJump)
         {
-            isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundLayer);    
+            isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundLayer) ||
+                         Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, wallLayer);    
         }
         
         CheckInput();
