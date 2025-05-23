@@ -162,6 +162,12 @@ public class WallRunning : MonoBehaviour
     private void StartWallRunning()
     {
         pm.wallRunning = true;
+        
+        if(wallRight)
+            pm.anim.SetBool("isRightWall", true);
+        else
+            pm.anim.SetBool("isLeftWall", true);
+        
 
         wallRunTimer = maxWallRunTime;
         Debug.Log("Reset Wall Run Time");
@@ -220,6 +226,10 @@ public class WallRunning : MonoBehaviour
         pm.wallRunning = false;
         rb.useGravity = useGravity;
         
+       
+        pm.anim.SetBool("isRightWall", false);
+        pm.anim.SetBool("isLeftWall", false);
+        
         //  Reset Camera Effects
         cam.DoFov(0);
         cam.DoTilt(0f);
@@ -228,6 +238,9 @@ public class WallRunning : MonoBehaviour
     private void WallJump()
     {
         Debug.Log("Wall Jump!");
+        
+        //  Jump Animation
+        pm.anim.SetTrigger("jumping");
 
         exitingWall = true;
         exitWallTimer = exitWallTime;

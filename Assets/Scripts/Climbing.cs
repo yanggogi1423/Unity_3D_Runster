@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class Climbing : MonoBehaviour
@@ -109,6 +108,8 @@ public class Climbing : MonoBehaviour
     private void StartClimbing()
     {
         pm.climbing = true;
+        
+        pm.anim.SetBool("isClimbing", true);
 
         lastWall = frontWallHit.transform;
         lastWallNormal = frontWallHit.normal;
@@ -123,12 +124,15 @@ public class Climbing : MonoBehaviour
     private void StopClimbing()
     {
         pm.climbing = false;
+        pm.anim.SetBool("isClimbing", false);
     }
 
     private void ClimbJump()
     {
         exitingWall = true;
         exitWallTimer = exitWallTime;
+
+        pm.anim.SetTrigger("jumping");
         
         Vector3 forceToApply = transform.up * climbJumpForce + frontWallHit.normal * climbJumpBackForce;
 

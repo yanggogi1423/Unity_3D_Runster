@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class PlayerSliding : MonoBehaviour
 {
@@ -34,7 +32,7 @@ public class PlayerSliding : MonoBehaviour
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        if (Input.GetKeyDown(slideKey) && (horizontalInput != 0 || verticalInput != 0))
+        if (Input.GetKeyDown(slideKey) && (horizontalInput != 0 || verticalInput != 0) && !pm.sliding)
         {
             StartSliding();
         }
@@ -56,9 +54,12 @@ public class PlayerSliding : MonoBehaviour
     private void StartSliding()
     {
         Debug.Log("Slide Start");
+        
+        pm.anim.SetBool("isSliding", true);
+        
         pm.sliding = true;
 
-        player.localScale = new Vector3(player.localScale.x, slideYScale, player.localScale.z);
+        // player.localScale = new Vector3(player.localScale.x, slideYScale, player.localScale.z);
         rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
 
         slideTimer = maxSlideTime;
@@ -93,6 +94,8 @@ public class PlayerSliding : MonoBehaviour
     {
         pm.sliding = false;
         
-        player.localScale = new Vector3(player.localScale.x, startYScale, player.localScale.z);
+        pm.anim.SetBool("isSliding", false);
+        
+        // player.localScale = new Vector3(player.localScale.x, startYScale, player.localScale.z);
     }
 }

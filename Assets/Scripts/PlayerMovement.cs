@@ -1,6 +1,5 @@
 using System.Collections;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
@@ -209,6 +208,7 @@ public class PlayerMovement : MonoBehaviour
             case MovementState.Crouching:
                 break;
             case MovementState.Sliding:
+                anim.SetBool("isSliding", true);
                 break;
             case MovementState.Air:
                 break;
@@ -312,8 +312,8 @@ public class PlayerMovement : MonoBehaviour
             curState = MovementState.Air;
         }
         
-        //  if DesiredMoveSpeed Change Drastically -> 차이가 4이상일 때 천천히 줄어듦
-        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && moveSpeed != 0)
+        //  if DesiredMoveSpeed Change Drastically -> 차이가 6 이상일 때 천천히 줄어듦
+        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 6f && moveSpeed != 0)
         {
             StopAllCoroutines();
             StartCoroutine(LerpMoveSpeedCoroutine());
@@ -374,7 +374,13 @@ public class PlayerMovement : MonoBehaviour
         //  Forward 키를 무시하기 위해
         if (cb.exitingWall) return;
         
-        moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        Vector3 flatForward = new Vector3(orientation.forward.x, 0f, orientation.forward.z).normalized;
+        Vector3 flatRight = new Vector3(orientation.right.x, 0f, orientation.right.z).normalized;
+
+        moveDirection = flatForward * verticalInput + flatRight * horizontalInput;
+
+        //  Orientation의 y축이 값에 영향을 주어 변경
+        //  moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
         
         //  On Slope
         if (OnSlope() && !exitingSlope)

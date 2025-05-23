@@ -1,16 +1,13 @@
 using System.Collections;
 using UnityEngine;
-using DG.Tweening;
 using Unity.Cinemachine;
-using Unity.Mathematics.Geometry;
-using Unity.VisualScripting;
 
 public class CameraControll : MonoBehaviour
 {
     public float sensX;
     public float sensY;
 
-    public Transform orientaion;
+    public Transform orientation;
     public Transform camOrientation;
     public Transform cameraContainer;
 
@@ -62,7 +59,7 @@ public class CameraControll : MonoBehaviour
         // cameraContainer.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         
         camOrientation.rotation = Quaternion.Euler(xRotation, yRotation, curZTilt);
-        orientaion.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        orientation.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         
         //  Player Rotation
         pm.PlayerRotation(yRotation);
