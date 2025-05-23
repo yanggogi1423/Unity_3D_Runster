@@ -113,68 +113,86 @@ public class CameraControll : MonoBehaviour
     public bool isFovModified;
     private int lastMode = 0;
     
+    private Coroutine fovRoutine = null;
+
     public void DoFov(int mode)
     {
-        if (lastMode != mode)
+        if (lastMode != mode || fovRoutine == null)
         {
             lastMode = mode;
-            StopAllCoroutines();
-            StartCoroutine(FovCoroutine(mode));
+
+            if (fovRoutine != null)
+                StopCoroutine(fovRoutine);
+
+            fovRoutine = StartCoroutine(FovCoroutine(mode));
         }
     }
+
 
     //  mode - 0 : default, 1 : sprint, 2 : wallRun
     private IEnumerator FovCoroutine(int mode)
     {
-        Vector2 offsetV = Vector2.zero;
+        Debug.Log("▶▶▶ FOV Coroutine STARTED | mode = " + mode);
 
-        Debug.Log("Fov Mode : " + mode); 
+        Vector2 offsetV = Vector2.zero;
 
         switch (mode)
         {
-            case 0 :
+            case 0:
                 isFovModified = false;
                 break;
-            case 1 :
-                offsetV =  new Vector2(0, sprintFovRange);
+            case 1:
+                offsetV = new Vector2(0, sprintFovRange);
                 isFovModified = true;
                 break;
-            case 2 :
-                offsetV =  new Vector2(0, wallFovRange);
+            case 2:
+                offsetV = new Vector2(0, wallFovRange);
                 isFovModified = true;
                 break;
         }
 
         Vector2 destVec = new Vector2(defalutFovRange.x + offsetV.x, defalutFovRange.y + offsetV.y);
 
-        while (Mathf.Abs(firstCam.GetComponent<CinemachineFollowZoom>().FovRange.magnitude - destVec.magnitude) > 0.1)
+        var zoom = firstCam.GetComponent<CinemachineFollowZoom>();
+    
+        while (Vector2.Distance(zoom.FovRange, destVec) > 0.1f)
         {
-            firstCam.GetComponent<CinemachineFollowZoom>().FovRange = 
-                Vector2.Lerp(firstCam.GetComponent<CinemachineFollowZoom>().FovRange, destVec, 0.03f);
+            zoom.FovRange = Vector2.Lerp(zoom.FovRange, destVec, 0.03f);
             yield return new WaitForSeconds(0.02f);
         }
 
-        firstCam.GetComponent<CinemachineFollowZoom>().FovRange = destVec;
+        zoom.FovRange = destVec;
+
+        Debug.Log("✅ FOV Coroutine ENDED");
+        fovRoutine = null;
     }
     
     
+    private Coroutine tiltCoroutine = null;
+
     public void DoTilt(float zTilt)
     {
         curZTilt = zTilt;
-        StopAllCoroutines();
-        StartCoroutine(TiltCoroutine(zTilt));
+
+        // 기존 코루틴이 실행 중이면 멈춤
+        if (tiltCoroutine != null)
+        {
+            StopCoroutine(tiltCoroutine);
+        }
+
+        // 새 코루틴 시작
+        tiltCoroutine = StartCoroutine(TiltCoroutine(zTilt));
     }
 
     private IEnumerator TiltCoroutine(float zTilt)
     {
         float t = 0f;
         float duration = 0.25f;
-        
-        Debug.Log("Cur Tilt : " +zTilt);
+
+        Debug.Log("Cur Tilt : " + zTilt);
 
         float startZ = camOrientation.rotation.eulerAngles.z;
         float targetZ = zTilt;
-        
 
         while (t < duration)
         {
@@ -188,7 +206,11 @@ public class CameraControll : MonoBehaviour
         }
 
         camOrientation.rotation = Quaternion.Euler(xRotation, yRotation, targetZ);
+
+        // 완료 후 코루틴 핸들러 정리
+        tiltCoroutine = null;
     }
+
     
 
 }

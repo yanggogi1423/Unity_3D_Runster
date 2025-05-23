@@ -22,5 +22,8 @@ public class Bullet : MonoBehaviour
         Quaternion rot = Quaternion.LookRotation(-cp.normal);   //  법선
         
         Debug.Log("Oh! Collision!");
+        
+        GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
+        Destroy(gameObject, 1.5f);
     }
 }

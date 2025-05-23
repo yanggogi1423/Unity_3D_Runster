@@ -12,8 +12,16 @@ public class PlayerAttack : MonoBehaviour
     
     [SerializeField] private Transform firePos;               // 총구 위치
     [SerializeField] private GameObject bulletEffectPrefab;   // 총알 이펙트 프리팹
-    [SerializeField] private float speed = 20000f;
-     
+    [SerializeField] private float speed = 10000f;
+
+    [Header("References")] 
+    public PlayerMovement pm;
+
+    private void Start()
+    {
+        pm = GetComponent<PlayerMovement>();
+    }
+
     private void Update()
     {
         Detection();
@@ -22,7 +30,7 @@ public class PlayerAttack : MonoBehaviour
 
     private void CheckInput()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && pm.CheckShootable())
         {
             Shoot();
         }
@@ -34,25 +42,21 @@ public class PlayerAttack : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
         {
-            // 1. 실제 피격 처리
-            Debug.Log("Hit: " + hit.collider.name);
-
-            // 2. 총구에서 hit 지점 방향으로 이펙트 생성
             Vector3 dir = (hit.point - firePos.position).normalized;
-            GameObject bullet = Instantiate(bulletEffectPrefab, firePos.position, Quaternion.LookRotation(dir));
-
+            Quaternion rot = Quaternion.LookRotation(dir) * Quaternion.Euler(90f, 0f, 0f); // Y축 전방 보정
+            GameObject bullet = Instantiate(bulletEffectPrefab, firePos.position, rot);
             bullet.GetComponent<Rigidbody>().AddForce(dir * speed, ForceMode.Impulse);
         }
         else
         {
-            // 3. 맞은 게 없다면 Ray 방향 끝으로 이펙트
             Vector3 missPoint = ray.origin + ray.direction * maxDistance;
             Vector3 dir = (missPoint - firePos.position).normalized;
-            GameObject bullet = Instantiate(bulletEffectPrefab, firePos.position, Quaternion.LookRotation(dir));
-            
-            bullet.GetComponent<Rigidbody>().AddForce(dir * speed,ForceMode.Impulse);
+            Quaternion rot = Quaternion.LookRotation(dir) * Quaternion.Euler(90f, 0f, 0f); // 동일 보정
+            GameObject bullet = Instantiate(bulletEffectPrefab, firePos.position, rot);
+            bullet.GetComponent<Rigidbody>().AddForce(dir * speed, ForceMode.Impulse);
         }
     }
+
 
 
     private void Detection()

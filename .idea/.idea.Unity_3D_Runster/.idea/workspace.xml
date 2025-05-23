@@ -6,10 +6,18 @@
   <component name="ChangeListManager">
     <list default="true" id="657e1d0b-622f-4733-8d85-a2edc47d189a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity_3D_Runster/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity_3D_Runster/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/PlayerAnimator.controller" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/PlayerAnimator.controller.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/CrossHair.controller" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Animations/UI/CrossHair.controller" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Bullet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Bullet.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Bullet.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Bullet.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Vefects/Trails VFX/VFX/Materials/M_VFX_BIRP_Trail_Ice_02.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Vefects/Trails VFX/VFX/Materials/M_VFX_BIRP_Trail_Ice_02.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/CameraControll.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CameraControll.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/PlayerAttack.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PlayerAttack.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PlayerMovement.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PlayerMovement.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/WallRunning.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/WallRunning.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/DynamicsManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/DynamicsManager.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/Physics2DSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/Physics2DSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -122,7 +130,8 @@
       <workItem from="1747715240206" duration="24223000" />
       <workItem from="1747828727598" duration="27817000" />
       <workItem from="1747917448010" duration="6659000" />
-      <workItem from="1748009827575" duration="12344000" />
+      <workItem from="1748009827575" duration="18178000" />
+      <workItem from="1748029341370" duration="257000" />
     </task>
     <servers />
   </component>

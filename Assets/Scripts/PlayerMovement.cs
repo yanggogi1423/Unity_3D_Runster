@@ -28,7 +28,7 @@ public class PlayerMovement : MonoBehaviour
     public float jumpForce;
     public float jumpCooldown;
     public float airMultiplier;
-    private bool readyToJump;
+    public bool readyToJump;
     [SerializeField] private float fallMultiplier = 2.5f;  // 하강 가속
     [SerializeField] private float lowJumpMultiplier = 2f; // 짧게 누른 경우
 
@@ -136,6 +136,7 @@ public class PlayerMovement : MonoBehaviour
         if (isGrounded) rb.linearDamping = groundDrag;
         else rb.linearDamping = 0;
         
+        //  Debug.Log("Cur Velocity : " + rb.linearVelocity.magnitude);
     }
 
     private void FixedUpdate()
@@ -217,6 +218,12 @@ public class PlayerMovement : MonoBehaviour
                 break;
         }
     }
+
+    public bool CheckShootable()
+    {
+        return (curState == MovementState.Idle || curState == MovementState.Walk ||
+                curState == MovementState.Sprinting || curState == MovementState.Air);
+    }
     
     private void UpdateBlendValue()
     {
@@ -250,8 +257,7 @@ public class PlayerMovement : MonoBehaviour
 
         anim.SetFloat("WalkBlend", blendValue);
     }
-
-
+    
 
     private void StateHandler()
     {
@@ -265,7 +271,7 @@ public class PlayerMovement : MonoBehaviour
             desiredMoveSpeed = climbSpeed;
         }
         //  Idle
-        else if (rb.linearVelocity.magnitude < 0.1f && isGrounded && readyToJump)
+        else if (rb.linearVelocity.magnitude < 0.2f && isGrounded && readyToJump)
         {
             curState = MovementState.Idle;
             desiredMoveSpeed = walkSpeed;
@@ -292,17 +298,16 @@ public class PlayerMovement : MonoBehaviour
         }
 
         //  Crouching
-         else if (Input.GetKey(crouchKey))
+        else if (Input.GetKey(crouchKey))
         {
             curState = MovementState.Crouching;
             desiredMoveSpeed = crouchSpeed;
         }
-        
         //  Sprinting
         else if (isGrounded && Input.GetKey(sprintKey))
         {
             curState = MovementState.Sprinting;
-            cam.DoFov(1);   //  Sprint Fov
+            cam.DoFov(1);
             desiredMoveSpeed = sprintSpeed;
         }
         else if (isGrounded)    //  Walk

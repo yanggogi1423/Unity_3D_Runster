@@ -438,7 +438,7 @@ MonoBehaviour:
   walkSpeed: 4
   sprintSpeed: 10
   slideSpeed: 30
-  wallRunSpeed: 8.5
+  wallRunSpeed: 12
   climbSpeed: 3
   speedIncreaseMultiplier: 1.5
   slopeIncreaseMultiplier: 2.5
@@ -574,6 +574,7 @@ MonoBehaviour:
   firePos: {fileID: 1509316511}
   bulletEffectPrefab: {fileID: 2865219813996447262, guid: 65c012c291923854198dac87b3b56cb8, type: 3}
   speed: 10
+  pm: {fileID: 0}
 --- !u!1001 &224522209
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1604,7 +1605,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 2559
+    m_Bits: 6655
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -1653,7 +1654,7 @@ MonoBehaviour:
   thirdCam: {fileID: 564333214}
   curState: 0
   camChangeKey: 286
-  wallFovRange: 40
+  wallFovRange: 25
   sprintFovRange: 15
   isFovModified: 0
 --- !u!114 &963194230

@@ -72,6 +72,12 @@ public class WallRunning : MonoBehaviour
         CheckInput();
         CheckForWall();
         
+        if (pm.wallRunning)
+        {
+            cam.DoFov(2);
+        }
+
+        
         // 벽 러닝 중 카메라 오프셋 적용
         // UpdateCameraOffset();
     }
