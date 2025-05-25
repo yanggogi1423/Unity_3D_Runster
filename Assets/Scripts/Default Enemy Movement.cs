@@ -14,7 +14,7 @@ public class DefaultEnemyMovement : MonoBehaviour
     public float velocityLerpCoef = 4f;
     
     [Header("References")] 
-    private NavMeshAgent agent;
+    public NavMeshAgent agent;
     private Mimic myMimic;
     private Rigidbody rb;
 

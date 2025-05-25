@@ -8,7 +8,8 @@ public class PlayerAttack : MonoBehaviour
     public CrossHair cr;
 
     public float maxDistance = 100f;
-    public LayerMask monsterLayer;
+    public LayerMask monsterLayer1;
+    public LayerMask monsterLayer2;
     
     [SerializeField] private Transform firePos;               // 총구 위치
     [SerializeField] private GameObject bulletEffectPrefab;   // 총알 이펙트 프리팹
@@ -63,7 +64,13 @@ public class PlayerAttack : MonoBehaviour
     {
         Ray ray = GetCenterScreenRay();  // 화면 중앙 기준 Ray
 
-        if (Physics.Raycast(ray, out RaycastHit hit, maxDistance, monsterLayer))
+        RaycastHit hit;
+        
+        if (Physics.Raycast(ray, out hit, maxDistance, monsterLayer1))
+        {
+            cr.CrossHairIn(true);
+        }
+        else if (Physics.Raycast(ray, out hit, maxDistance, monsterLayer2))
         {
             cr.CrossHairIn(true);
         }

@@ -54,6 +54,9 @@ namespace MimicSpace
             this.maxLegDistance = maxLegDistance;
             this.growCoef = growCoef;
             this.myMimic = myMimic;
+            
+            //  For Animations
+            myMimic.legLineList.Add(GetComponent<LineRenderer>());
 
             this.legLine = GetComponent<LineRenderer>();
             handles = new Vector3[handlesCount];
@@ -106,24 +109,27 @@ namespace MimicSpace
             growTarget = 0;
         }
 
-        private void Update()
+        void Update()
         {
-            // The growTarget is set to 1 if the leg must grow, and 0 if it must retract
-            if (growTarget == 1 && Vector3.Distance(new Vector3(myMimic.legPlacerOrigin.x, 0, myMimic.legPlacerOrigin.z), new Vector3(footPosition.x, 0, footPosition.z)) > maxLegDistance && canDie && myMimic.deployedLegs > myMimic.minimumAnchoredParts)
+            if (growTarget == 1 &&
+                Vector3.Distance(new Vector3(myMimic.legPlacerOrigin.x, 0, myMimic.legPlacerOrigin.z),
+                    new Vector3(footPosition.x, 0, footPosition.z)) > maxLegDistance &&
+                canDie && myMimic.deployedLegs > myMimic.minimumAnchoredParts)
+            {
                 growTarget = 0;
+            }
             else if (growTarget == 1)
             {
-                // Check is the body is in line of sight from the foot position, and initiates the retractation if it isn't
                 RaycastHit hit;
-                if (Physics.Linecast(footPosition, transform.position, out hit))
+                int mask = ~LayerMask.GetMask("MimicBody", "LegPart");  // ✅ 마스크 적용
+                if (Physics.Linecast(footPosition, transform.position, out hit, mask))
                 {
                     growTarget = 0;
                 }
             }
-            // progression defines the percentage of deployement (1 being fully deployed and 0 fully retracted)
+
             progression = Mathf.Lerp(progression, growTarget, growCoef * Time.deltaTime);
 
-            // we signal the leg deployement to the Mimic for the leg spawn logic
             if (!isDeployed && progression > 0.9f)
             {
                 myMimic.deployedLegs++;
@@ -134,32 +140,33 @@ namespace MimicSpace
                 myMimic.deployedLegs--;
                 isDeployed = false;
             }
+
             if (progression < 0.5f && growTarget == 0)
             {
                 if (!isRemoved)
                 {
-                    GetComponentInParent<Mimic>().legCount--;
+                    myMimic.legCount--;
                     isRemoved = true;
                 }
 
                 if (progression < 0.05f)
                 {
-                    //StopAllCoroutines();
                     legLine.positionCount = 0;
+                    
+                    // ▶ 리스트에서 제거
+                    myMimic.legLineList.Remove(legLine);
+                    
                     myMimic.RecycleLeg(this.gameObject);
                     return;
                 }
-
             }
 
-            // We update the handle position defining the spline
             Sethandles();
-
-            // Then sample the spline and assign the values to the line renderer
             Vector3[] points = GetSamplePoints((Vector3[])handles.Clone(), legResolution, progression);
             legLine.positionCount = points.Length;
             legLine.SetPositions(points);
         }
+
 
         void Sethandles()
         {

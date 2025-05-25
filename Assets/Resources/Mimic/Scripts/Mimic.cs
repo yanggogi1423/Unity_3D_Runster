@@ -52,10 +52,18 @@ namespace MimicSpace
 
         [Tooltip("This must be updates as the Mimin moves to assure great leg placement")]
         public Vector3 velocity;
+        
+        //  For Animations
+        public DefaultMonster dm;
+        public List<LineRenderer> legLineList = new List<LineRenderer>();
+        // Mimic.cs 내부
+        public bool isDying = false;
 
         void Start()
         {
             ResetMimic();
+
+            dm = GetComponent<DefaultMonster>();
         }
 
         private void OnValidate()
@@ -88,44 +96,47 @@ namespace MimicSpace
             canCreateLeg = true;
         }
 
-        // Update is called once per frame
         void Update()
         {
+            if (isDying) return;
+            
             if (!canCreateLeg)
                 return;
 
-            // New leg origin is placed in front of the mimic
             legPlacerOrigin = transform.position + velocity.normalized * newLegRadius;
 
             if (legCount <= maxLegs - partsPerLeg)
             {
-                // Offset The leg origin by a random vector
                 Vector2 offset = Random.insideUnitCircle * newLegRadius;
                 Vector3 newLegPosition = legPlacerOrigin + new Vector3(offset.x, 0, offset.y);
 
-                // If the mimic is moving and the new leg position is behind it, mirror it to make
-                // it reach in front of the mimic.
                 if (velocity.magnitude > 1f)
                 {
                     float newLegAngle = Vector3.Angle(velocity, newLegPosition - transform.position);
-
                     if (Mathf.Abs(newLegAngle) > 90)
-                    {
                         newLegPosition = transform.position - (newLegPosition - transform.position);
-                    }
                 }
 
-                if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(legPlacerOrigin.x, 0, legPlacerOrigin.z)) < minLegDistance)
+                if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
+                        new Vector3(legPlacerOrigin.x, 0, legPlacerOrigin.z)) < minLegDistance)
+                {
                     newLegPosition = ((newLegPosition - transform.position).normalized * minLegDistance) + transform.position;
+                }
 
-                // if the angle is too big, adjust the new leg position towards the velocity vector
                 if (Vector3.Angle(velocity, newLegPosition - transform.position) > 45)
-                    newLegPosition = transform.position + ((newLegPosition - transform.position) + velocity.normalized * (newLegPosition - transform.position).magnitude) / 2f;
+                {
+                    newLegPosition = transform.position +
+                                     ((newLegPosition - transform.position) + velocity.normalized * (newLegPosition - transform.position).magnitude) / 2f;
+                }
+
+                // ✅ LegPart 레이어 제외 마스크 적용
+                int groundMask = ~LayerMask.GetMask("MimicBody", "LegPart");
 
                 RaycastHit hit;
-                Physics.Raycast(newLegPosition + Vector3.up * 10f, -Vector3.up, out hit);
+                Physics.Raycast(newLegPosition + Vector3.up * 10f, -Vector3.up, out hit, Mathf.Infinity, groundMask);
+
                 Vector3 myHit = hit.point;
-                if (Physics.Linecast(transform.position, hit.point, out hit))
+                if (Physics.Linecast(transform.position, hit.point, out hit, groundMask))
                     myHit = hit.point;
 
                 float lifeTime = Random.Range(minLegLifetime, maxLegLifetime);
@@ -140,6 +151,7 @@ namespace MimicSpace
             }
         }
 
+
         // object pooling to limit leg instantiation
         void RequestLeg(Vector3 footPosition, int legResolution, float maxLegDistance, float growCoef, Mimic myMimic, float lifeTime)
         {
@@ -153,10 +165,20 @@ namespace MimicSpace
             {
                 newLeg = Instantiate(legPrefab, transform.position, Quaternion.identity);
             }
+
             newLeg.SetActive(true);
             newLeg.GetComponent<Leg>().Initialize(footPosition, legResolution, maxLegDistance, growCoef, myMimic, lifeTime);
+
+            // ✅ 레이어 자동 지정
+            int legLayer = LayerMask.NameToLayer("LegPart");
+            newLeg.layer = legLayer;
+            foreach (Transform child in newLeg.transform)
+                child.gameObject.layer = legLayer;
+
             newLeg.transform.SetParent(myMimic.transform);
+            
         }
+
 
         public void RecycleLeg(GameObject leg)
         {

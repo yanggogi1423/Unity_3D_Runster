@@ -6,12 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="657e1d0b-622f-4733-8d85-a2edc47d189a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity_3D_Runster/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity_3D_Runster/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Bullet.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Bullet.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Mimic/Materials/Unlit Shadow.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Mimic/Materials/Unlit Shadow.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Mimic/Prefabs/Leg.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Mimic/Prefabs/Leg.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Mimic/Scripts/Leg.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Mimic/Scripts/Leg.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Mimic/Scripts/Mimic.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Mimic/Scripts/Mimic.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Bullet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Bullet.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Default Enemy Movement.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Default Enemy Movement.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PlayerAttack.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PlayerAttack.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +37,7 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Assets/Player.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/CameraConstraint.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/CameraControll.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Climbing.cs" root0="FORCE_HIGHLIGHTING" />
@@ -128,7 +132,8 @@
       <workItem from="1747917448010" duration="6659000" />
       <workItem from="1748009827575" duration="18178000" />
       <workItem from="1748029341370" duration="2379000" />
-      <workItem from="1748068456779" duration="3815000" />
+      <workItem from="1748068456779" duration="4233000" />
+      <workItem from="1748152162027" duration="6492000" />
     </task>
     <servers />
   </component>

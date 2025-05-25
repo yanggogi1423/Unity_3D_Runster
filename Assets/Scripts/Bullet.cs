@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField] private int attackPower = 5;
+    
+    
     void Start()
     {
         StartCoroutine(DestroyCoroutine());
@@ -24,6 +26,15 @@ public class Bullet : MonoBehaviour
         Debug.Log("Oh! Collision!");
         
         GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
-        Destroy(gameObject, 1.5f);
+
+        if (other.gameObject.CompareTag("Monster"))
+        {
+            other.gameObject.GetComponent<DefaultMonster>().GetDamage(attackPower);
+            Destroy(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject, 1.5f);
+        }
     }
 }
