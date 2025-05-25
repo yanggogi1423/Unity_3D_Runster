@@ -19,6 +19,8 @@ public class Player : MonoBehaviour
         curHp = maxHp;
 
         isGrace = false;
+        
+        
     }
 
     public void GetDamage(int damage)

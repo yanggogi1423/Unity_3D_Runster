@@ -99,6 +99,7 @@ namespace MimicSpace
         void Update()
         {
             if (isDying) return;
+            if (dm.isSpawning) return;
             
             if (!canCreateLeg)
                 return;

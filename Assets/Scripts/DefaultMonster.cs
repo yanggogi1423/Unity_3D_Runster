@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class DefaultMonster : MonoBehaviour
 {
+    
     [Header("Attributes")] 
     [SerializeField] private int maxHp;
     [SerializeField] private int curHp;
@@ -18,6 +19,11 @@ public class DefaultMonster : MonoBehaviour
 
     [SerializeField] private Mimic mimic; // Mimic 참조
     [SerializeField] private DefaultEnemyMovement de;
+    
+    [Header("Particles")]
+    public GameObject spawnParticle;
+    public float particleDuration = 3f;
+    public bool isSpawning;
 
     private void Awake()
     {
@@ -25,9 +31,50 @@ public class DefaultMonster : MonoBehaviour
 
         if (mimic == null)
             mimic = GetComponent<Mimic>();
-
-        de = GetComponent<DefaultEnemyMovement>();
+        
     }
+
+    private void Start()
+    {
+        de = GetComponent<DefaultEnemyMovement>();
+        
+        StartSpawnEffect();
+    }
+
+    public void StartSpawnEffect()
+    {
+        if (spawnParticle == null) return;
+
+        isSpawning = true;
+        spawnParticle.SetActive(true);
+        spawnParticle.transform.localScale = Vector3.one;
+
+        StartCoroutine(SpawnEffectRoutine());
+    }
+
+    private IEnumerator SpawnEffectRoutine()
+    {
+        float timer = 0f;
+        Vector3 originalScale = spawnParticle.transform.localScale;
+
+        de.agent.isStopped = true; // 잠시 멈춤
+
+        while (timer < particleDuration)
+        {
+            timer += Time.deltaTime;
+            float t = timer / particleDuration;
+
+            // 선형으로 작아짐
+            spawnParticle.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, t);
+
+            yield return null;
+        }
+
+        spawnParticle.SetActive(false);
+        de.agent.isStopped = false; // 이동 재개
+        isSpawning = false;
+    }
+
 
     public void GetDamage(int damage)
     {
