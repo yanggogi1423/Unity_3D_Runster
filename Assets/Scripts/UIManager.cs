@@ -55,22 +55,34 @@ public class UIManager : MonoBehaviour
     }
 
 
-    //  Unity Event 사용
+    //  Unity Event 사용 - 또 나름의 밸런스 조절이 들어간다. (실제 연산 양과 다름)
     public void UIPlayerHpUpdate()
     {
-        if (hpCoroutine != null) return;
+        if (hpCoroutine != null)
+        {
+            StopCoroutine(hpCoroutine);
+            player.desireHp = player.curHp;
+        }
         hpCoroutine = StartCoroutine(UIWithPlayerLerpCoroutine(0));
     }
     
     public void UIPlayerBoostUpdate()
     {
-        if (boostCoroutine != null) return;
+        if (boostCoroutine != null)
+        {
+            StopCoroutine(boostCoroutine);
+            player.desireBoost = player.curBoost;
+        }
         boostCoroutine = StartCoroutine(UIWithPlayerLerpCoroutine(1));
     }
 
     public void UIPlayerUltimateUpdate()
     {
-        if (ultimateCoroutine != null) return;
+        if (ultimateCoroutine != null)
+        {
+            StopCoroutine(ultimateCoroutine);
+            player.desireUltimate = player.curUltimate;
+        }
         ultimateCoroutine = StartCoroutine(UIWithPlayerLerpCoroutine(2));
     }
 

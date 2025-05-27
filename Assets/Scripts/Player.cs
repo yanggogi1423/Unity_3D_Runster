@@ -54,7 +54,7 @@ public class Player : MonoBehaviour
         pm = GetComponent<PlayerMovement>();
         
         //  Init
-        curHp = desireHp =maxHp;
+        curHp = desireHp = maxHp;
         curBoost = desireBoost = maxBoost;
         curUltimate = desireUltimate = 0;
         
