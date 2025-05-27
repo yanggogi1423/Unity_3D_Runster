@@ -4,26 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="657e1d0b-622f-4733-8d85-a2edc47d189a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity_3D_Runster/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity_3D_Runster/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Player.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Player.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_AddonPanel.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_AddonPanel.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_AddonPanel02.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_AddonPanel02.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_AddonPanelFull.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_AddonPanelFull.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_CenterBtn.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_CenterBtn.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_LeftBtn01.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_LeftBtn01.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_RightBtn01.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/GUI Game #14 [Space, Minimalism, Action, SciFi, RTS]/Elements/TopMenu01_RightBtn01.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/CameraControll.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CameraControll.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Climbing.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Climbing.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Default Enemy Movement.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Default Enemy Movement.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/DefaultMonster.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/DefaultMonster.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PlayerMovement.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PlayerMovement.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PlayerSliding.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PlayerSliding.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/WallRunning.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/WallRunning.cs" afterDir="false" />
-    </list>
+    <list default="true" id="657e1d0b-622f-4733-8d85-a2edc47d189a" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -126,7 +107,7 @@
       <workItem from="1747893125935" duration="140000" />
       <workItem from="1748162093743" duration="2732000" />
       <workItem from="1748315033516" duration="565000" />
-      <workItem from="1748315600720" duration="9738000" />
+      <workItem from="1748315600720" duration="10450000" />
     </task>
     <servers />
   </component>
