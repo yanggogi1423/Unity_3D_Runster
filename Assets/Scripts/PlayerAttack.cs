@@ -31,9 +31,20 @@ public class PlayerAttack : MonoBehaviour
 
     private void CheckInput()
     {
-        if (Input.GetMouseButtonDown(0) && pm.CheckShootable())
+        if (Input.GetMouseButtonDown(0) && pm.CheckShootable() && pm.player.curBoost >= 2f)
         {
             Shoot();
+        
+            if (pm.player.curBoost > 0f)   // 또는 desireBoost > 0f
+            {
+                pm.player.desireBoost -= 2f;
+
+                // 최소 0 보장
+                pm.player.desireBoost = Mathf.Max(0f, pm.player.desireBoost);
+
+                // UI 갱신 트리거
+                pm.player.OnPlayerBoostChaged.Invoke();
+            }
         }
     }
 
@@ -57,9 +68,7 @@ public class PlayerAttack : MonoBehaviour
             bullet.GetComponent<Rigidbody>().AddForce(dir * speed, ForceMode.Impulse);
         }
     }
-
-
-
+    
     private void Detection()
     {
         Ray ray = GetCenterScreenRay();  // 화면 중앙 기준 Ray
@@ -93,6 +102,4 @@ public class PlayerAttack : MonoBehaviour
 
         return Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
     }
-
-    
 }

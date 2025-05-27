@@ -161,12 +161,12 @@ public class PlayerMovement : MonoBehaviour
         
         if (curState == MovementState.Walk || curState == MovementState.Idle || curState == MovementState.Air)
         {
-            if(nonBoostTime < Time.deltaTime * (-20f)) nonBoostTime = Time.deltaTime * (-20f);
+            if(nonBoostTime < Time.deltaTime * (-60f)) nonBoostTime = Time.deltaTime * (-60f);
             nonBoostTime += Time.deltaTime;
         }
         else
         {
-            if(nonBoostTime > Time.deltaTime * (60f)) nonBoostTime = Time.deltaTime * (60f);
+            if(nonBoostTime > Time.deltaTime * (20f)) nonBoostTime = Time.deltaTime * (20f);
             
             nonBoostTime -= Time.deltaTime;
         }

@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using Button = UnityEngine.UIElements.Button;
 
 public class UIManager : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class UIManager : MonoBehaviour
     public Image climbing;
     public Image sliding;
     
+    //  미리 할당하지 않으면 문제가 발생함 반드시 Player는 미리 할당할 것
     private Player player;
     private PlayerMovement pm;
     private WallRunning wr;
@@ -34,7 +36,14 @@ public class UIManager : MonoBehaviour
     //  Handler
     private bool isModifiedGrace;
 
-    private void Start()
+    [Header("Top Menu")] 
+    public GameObject topContainer;
+
+    public Animator topAnim;
+    public Button exitMenuButton;
+    public bool topMenuVisible;
+
+    private void Awake()
     {
         player = playerContainer.GetComponent<Player>();
         pm = playerContainer.GetComponent<PlayerMovement>();
@@ -47,6 +56,8 @@ public class UIManager : MonoBehaviour
         hpCoroutine = null;
         boostCoroutine = null;
         ultimateCoroutine = null;
+
+        topMenuVisible = true;
     }
 
     private void Update()
@@ -93,48 +104,42 @@ public class UIManager : MonoBehaviour
         {
             switch (mode)
             {
-                case 0 :
-                    if (Mathf.Approximately(player.curHp,player.desireHp))
+                case 0:
+                    player.curHp = Mathf.Lerp(player.curHp, player.desireHp, 0.1f);
+                    playerHp.fillAmount = player.curHp / player.maxHp;
+                    if (Mathf.Abs(player.curHp - player.desireHp) < 0.01f)
                     {
                         player.curHp = player.desireHp;
                         hpCoroutine = null;
-                        yield return null;
+                        yield break;
                     }
-                    
-                    player.curHp = Mathf.Lerp(player.curHp, player.desireHp, 0.9f);
-                    
-                    playerHp.fillAmount = player.curHp / player.maxHp;
                     break;
-                case 1 :
-                    if (Mathf.Approximately(player.curBoost,player.desireBoost))
+                case 1:
+                    player.curBoost = Mathf.Lerp(player.curBoost, player.desireBoost, 0.1f);  // ✅ 수정: curHp → curBoost
+                    playerBoost.fillAmount = player.curBoost / player.maxBoost;
+                    if (Mathf.Abs(player.curBoost - player.desireBoost) < 0.01f)  // ✅ 수렴 조건 강화
                     {
                         player.curBoost = player.desireBoost;
                         boostCoroutine = null;
-                        yield return null;
+                        yield break;
                     }
-                    
-                    player.curBoost = Mathf.Lerp(player.curHp, player.desireBoost, 0.9f);
-                    
-                    playerBoost.fillAmount = player.curBoost / player.maxBoost;
                     break;
-                case 2 :
-                    if (Mathf.Approximately(player.curUltimate,player.desireUltimate))
+                case 2:
+                    player.curUltimate = Mathf.Lerp(player.curUltimate, player.desireUltimate, 0.1f);
+                    playerUltimate.SetText(Mathf.CeilToInt((player.curUltimate / player.maxUltimate) * 100f) + "%");
+                    if (Mathf.Abs(player.curUltimate - player.desireUltimate) < 0.01f)
                     {
+                        Debug.Log(((player.curUltimate / player.maxUltimate) * 100) + "%");
                         player.curUltimate = player.desireUltimate;
                         ultimateCoroutine = null;
-                        yield return null;
+                        yield break;
                     }
-                    
-                    player.curUltimate = Mathf.Lerp(player.curUltimate, player.desireUltimate, 0.9f);
-                    
-                    playerUltimate.SetText((int)((player.curUltimate / player.maxUltimate) * 100) + "%");
                     break;
             }
-            
-            yield return new WaitForSeconds(Time.deltaTime);
+
+            yield return null;  
         }
     }
-    
     
     //  구현의 간단함을 위해 Busy-Update 사용
     public void UISkillUpdate()
@@ -142,6 +147,10 @@ public class UIManager : MonoBehaviour
         wallRun.fillAmount = wr.GetWallRunTimeRatio();
         climbing.fillAmount = climb.GetClimbTimeRatio();
         sliding.fillAmount = slide.GetSlideTimeRatio();
+
+        Debug.Log("Wall Running : " + wr.GetWallRunTimeRatio() +
+                  "\nClimbing : " + climb.GetClimbTimeRatio() +
+                  "\nSliding : " + slide.GetSlideTimeRatio());
         
         if (player.GetIsGrace() && !isModifiedGrace)
         {
@@ -153,5 +162,13 @@ public class UIManager : MonoBehaviour
             playerHp.color = new Color(playerHp.color.r, playerHp.color.g, playerHp.color.b, 255);
             isModifiedGrace = true;
         }
+    }
+    
+    //  Top Menu Visibility
+    public void TopMenuToggle()
+    {
+        topMenuVisible = !topMenuVisible;
+        
+        topAnim.SetBool("visible", topMenuVisible);
     }
 }

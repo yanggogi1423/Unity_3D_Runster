@@ -18,6 +18,9 @@ public class PlayerSliding : MonoBehaviour
     [Header("Input")] public KeyCode slideKey = KeyCode.LeftControl;
     private float horizontalInput;
     private float verticalInput;
+    
+    //  UI
+    private float slideVisualTimer;
 
     private void Start()
     {
@@ -41,6 +44,25 @@ public class PlayerSliding : MonoBehaviour
         {
             StopSlide();
         }
+        
+        // UI용 보간 처리
+        if (pm.sliding)
+        {
+            slideVisualTimer = Mathf.MoveTowards(
+                slideVisualTimer,
+                slideTimer,
+                Time.deltaTime * 10f
+            );
+        }
+        else
+        {
+            slideVisualTimer = Mathf.MoveTowards(
+                slideVisualTimer,
+                maxSlideTime,
+                Time.deltaTime * 15f
+            );
+        }
+
     }
 
     private void FixedUpdate()
@@ -101,6 +123,7 @@ public class PlayerSliding : MonoBehaviour
 
     public float GetSlideTimeRatio()
     {
-        return slideTimer / maxSlideTime;
+        return Mathf.Clamp01(slideVisualTimer / maxSlideTime);
     }
+
 }

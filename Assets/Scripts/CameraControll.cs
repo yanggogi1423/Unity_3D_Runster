@@ -22,6 +22,14 @@ public class CameraControll : MonoBehaviour
     [Header("Cameras")] 
     public GameObject firstCam;
     public GameObject thirdCam;
+
+    [Header("UI")] 
+    public UIManager uiManager;
+
+    [Header("Cursor")] 
+    public GameObject back;
+    public KeyCode cursorVisibleKey = KeyCode.Escape;
+    [SerializeField] private bool cursorVisibility;
     
     public enum CameraState
     {
@@ -34,9 +42,8 @@ public class CameraControll : MonoBehaviour
 
     private void Start()
     {
-        //  커서를 가운데에 고정
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        cursorVisibility = false;
+        SetCursorVisible();
         
         //  Set Default Cam
         curState = CameraState.First;
@@ -49,7 +56,6 @@ public class CameraControll : MonoBehaviour
         //  Mouse Input
         float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX;
         float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensY;
-
         
         yRotation += mouseX;
         
@@ -65,6 +71,53 @@ public class CameraControll : MonoBehaviour
         pm.PlayerRotation(yRotation);
         
         CheckInput();
+        
+        //  Cursor visibility는 여기서 관리
+        if (Input.GetKeyDown(cursorVisibleKey))
+        {
+            cursorVisibility = !cursorVisibility;
+            SetCursorVisible();
+        }
+    }
+
+    public void ExitMenu()
+    {
+        cursorVisibility = !cursorVisibility;
+        SetCursorVisible();
+    }
+
+    public void SetCursorVisible()
+    {
+        if (cursorVisibility)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = cursorVisibility;
+            back.SetActive(cursorVisibility);
+            uiManager.TopMenuToggle();
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = cursorVisibility;
+            back.SetActive(cursorVisibility);
+            uiManager.TopMenuToggle();
+            Time.timeScale = 1f;
+        }
+    }
+
+    public void ControlBySwitchButton()
+    {
+        if (curState == CameraState.First)
+        {
+            curState = CameraState.Third;
+        }
+        else if (curState == CameraState.Third)
+        {
+            curState = CameraState.First;
+        }
+            
+        ChangeCamera();
     }
 
     public void CheckInput()

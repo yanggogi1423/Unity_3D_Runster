@@ -24,7 +24,7 @@ public class Player : MonoBehaviour
     [Header("References")]
     public CapsuleCollider cc;
 
-    [Header("Events")]  //  Sync가 제대로 안맞는 문제가 존재.
+    [Header("Events")] //  Sync가 제대로 안맞는 문제가 존재.
     public UnityEvent OnPlayerHpChanged;
     public UnityEvent OnPlayerBoostChaged;
     public UnityEvent OnPlayerUltimateChanged;
@@ -89,36 +89,26 @@ public class Player : MonoBehaviour
 
     public void CheckAboutBoost()
     {
-        if(curBoost <= 0 && boostLessCoroutine == null) NotEnoughBoost();
+        if (curBoost <= 0 && boostLessCoroutine == null)
+            NotEnoughBoost();
+
+        bool shouldCharge = pm.GetNonBoostTime() < 0;
         
-        if (pm.GetNonBoostTime() < 0 && (!isBoostCharge || isInit))
+        if (isInit || (shouldCharge != isBoostCharge))
         {
-            Debug.Log("Boost Up");
-            
             if (boostCoroutine != null)
-            {
-                Debug.Log("Boost Stop");
                 StopCoroutine(boostCoroutine);
-            }
-            isBoostCharge = true;
-            boostCoroutine = StartCoroutine(BoostChangeCoroutine(0.1f));
-        }
-        else if (pm.GetNonBoostTime() >= 0 && (isBoostCharge || isInit))
-        {
-            Debug.Log("Boost Down");
 
-            if (boostCoroutine != null)
-            {
-                Debug.Log("Boost Stop");
-                StopCoroutine(boostCoroutine);
-            }
-            isBoostCharge = false;
-            boostCoroutine = StartCoroutine(BoostChangeCoroutine(-0.1f));
+            isBoostCharge = shouldCharge;
+
+            float offset = isBoostCharge ? 0.3f : -0.3f;
+            boostCoroutine = StartCoroutine(BoostChangeCoroutine(offset));
         }
 
-        if(isInit)
-            isInit = false;
+        isInit = false;
     }
+
+
 
     private void NotEnoughBoost()
     {
@@ -146,24 +136,20 @@ public class Player : MonoBehaviour
     {
         while (true)
         {
-            if (Mathf.Approximately(curBoost, maxBoost) && isBoostCharge)
-            {
-                yield break;
-            }
+            // 범위 제한
+            desireBoost = Mathf.Clamp(desireBoost + offset, 0f, maxBoost);
+            curBoost = desireBoost;
 
-            if (curBoost == 0f && !isBoostCharge)
-            {
-                yield break;
-            }
-
-            desireBoost += offset;
-            
-            Debug.Log("CurBoost: " + curBoost);
+            // UI 갱신 즉시 호출
             OnPlayerBoostChaged.Invoke();
-            
-            yield return new WaitForSeconds(Time.deltaTime);
+
+            if ((isBoostCharge && curBoost >= maxBoost) || (!isBoostCharge && curBoost <= 0f))
+                yield break;
+
+            yield return new WaitForSeconds(0.05f);  // 빠른 속도로 반응하도록
         }
     }
+
 
     public void KillEnemies()
     {

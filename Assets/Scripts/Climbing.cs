@@ -39,6 +39,9 @@ public class Climbing : MonoBehaviour
 
     public float exitWallTime;
     private float exitWallTimer;
+    
+    //  UI
+    private float climbVisualTimer;
 
     private void Start()
     {
@@ -52,6 +55,23 @@ public class Climbing : MonoBehaviour
         CheckInput();
         
         if(pm.climbing && !exitingWall) ClimbingMovement();
+        
+        if (pm.climbing)
+        {
+            climbVisualTimer = Mathf.MoveTowards(
+                climbVisualTimer,
+                climbTimer,
+                Time.deltaTime * 10f
+            );
+        }
+        else
+        {
+            climbVisualTimer = Mathf.MoveTowards(
+                climbVisualTimer,
+                maxClimbTime,
+                Time.deltaTime * 15f
+            );
+        }
     }
 
     private void CheckInput()
@@ -147,6 +167,6 @@ public class Climbing : MonoBehaviour
 
     public float GetClimbTimeRatio()
     {
-        return climbTimer / maxClimbTime;
+        return Mathf.Clamp01(climbVisualTimer / maxClimbTime);
     }
 }

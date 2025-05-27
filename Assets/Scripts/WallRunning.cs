@@ -48,6 +48,12 @@ public class WallRunning : MonoBehaviour
     private Rigidbody rb;
     public CapsuleCollider cc;
     
+    //  UI
+    private float wallRunCooldownVisual;
+    
+    [Header("UI Refill Speed")]
+    public float wallRunRefillSpeed = 2f;  // 1초면 2만큼 찬다고 가정
+    
     // [Header("Camera Offset")]
     // public Transform cameraContainer;             // CameraContainer (PlayerCam의 부모)
     // public Vector3 defaultCamLocalPos;            // 원래 로컬 위치 저장용
@@ -65,6 +71,8 @@ public class WallRunning : MonoBehaviour
         // {
         //     defaultCamLocalPos = cameraContainer.localPosition;
         // }
+
+        wallRunCooldownVisual = maxWallRunTime;
     }
 
     private void Update()
@@ -75,11 +83,21 @@ public class WallRunning : MonoBehaviour
         if (pm.wallRunning)
         {
             cam.DoFov(2);
-        }
 
-        
-        // 벽 러닝 중 카메라 오프셋 적용
-        // UpdateCameraOffset();
+            wallRunCooldownVisual = Mathf.MoveTowards(
+                wallRunCooldownVisual,
+                wallRunTimer,
+                Time.deltaTime * 10f
+            );
+        }
+        else
+        {
+            wallRunCooldownVisual = Mathf.MoveTowards(
+                wallRunCooldownVisual,
+                maxWallRunTime,
+                Time.deltaTime * 15f
+            );
+        }
     }
 
     private void FixedUpdate()
@@ -269,7 +287,7 @@ public class WallRunning : MonoBehaviour
     //  For UI
     public float GetWallRunTimeRatio()
     {
-        return (wallRunTimer / maxWallRunTime);
+        return Mathf.Clamp01(wallRunCooldownVisual / maxWallRunTime);
     }
     
     // private void UpdateCameraOffset()
