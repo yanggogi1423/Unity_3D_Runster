@@ -86,7 +86,6 @@ public class CameraControll : MonoBehaviour
 
     private void ChangeCamera()
     {
-        Debug.Log("Change to " + curState);
         switch (curState)
         {
             case CameraState.First :
@@ -132,7 +131,6 @@ public class CameraControll : MonoBehaviour
     //  mode - 0 : default, 1 : sprint, 2 : wallRun
     private IEnumerator FovCoroutine(int mode)
     {
-        Debug.Log("▶▶▶ FOV Coroutine STARTED | mode = " + mode);
 
         Vector2 offsetV = Vector2.zero;
 
@@ -162,8 +160,7 @@ public class CameraControll : MonoBehaviour
         }
 
         zoom.FovRange = destVec;
-
-        Debug.Log("✅ FOV Coroutine ENDED");
+        
         fovRoutine = null;
     }
     
@@ -188,8 +185,7 @@ public class CameraControll : MonoBehaviour
     {
         float t = 0f;
         float duration = 0.25f;
-
-        Debug.Log("Cur Tilt : " + zTilt);
+        
 
         float startZ = camOrientation.rotation.eulerAngles.z;
         float targetZ = zTilt;

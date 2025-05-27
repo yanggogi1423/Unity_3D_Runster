@@ -266,6 +266,12 @@ public class WallRunning : MonoBehaviour
         rb.AddForce(jumpForceVec, ForceMode.Impulse);
     }
     
+    //  For UI
+    public float GetWallRunTimeRatio()
+    {
+        return (wallRunTimer / maxWallRunTime);
+    }
+    
     // private void UpdateCameraOffset()
     // {
     //     if (cameraContainer == null || cameraPos == null)

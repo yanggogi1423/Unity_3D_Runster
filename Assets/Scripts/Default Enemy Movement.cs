@@ -7,6 +7,7 @@ public class DefaultEnemyMovement : MonoBehaviour
 {
     [Header("Properties")] 
     public float speed;
+    
     [Tooltip("Body Height from ground")]
     [Range(0.5f, 5f)]
     public float height = 0.8f;

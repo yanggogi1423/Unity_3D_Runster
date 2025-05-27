@@ -55,9 +55,9 @@ public class PlayerMovement : MonoBehaviour
     private bool exitingSlope;  //  Slope에서 점프를 지원할 수 있게!
     private bool isOnSlope;
 
-    [Header("References")]
+    [Header("References")] 
+    public Player player;
     public Climbing cb;
-    
 
     //  Orientation은 바라보는 방향을 저장한다.
     public Transform orientation;
@@ -75,8 +75,10 @@ public class PlayerMovement : MonoBehaviour
     [Header("Camera")]
     public CameraControll cam;
 
-    [Header("Animator")] 
-    public Animator anim;
+    [Header("Animator")] public Animator anim;
+
+    [Header("Boost Time")] 
+    public float nonBoostTime;
     
     //  For State Machine
     public enum MovementState
@@ -107,6 +109,8 @@ public class PlayerMovement : MonoBehaviour
         
         ps = GetComponent<PlayerSliding>();
         cb = GetComponent<Climbing>();
+
+        player = GetComponent<Player>();
         
         readyToJump = true;
 
@@ -143,9 +147,36 @@ public class PlayerMovement : MonoBehaviour
     {
         MovePlayer();
         
+        CheckNonBoostTime();
+        
+        // Debug.Log("Non Boost Time : " + nonBoostTime);
+        
         //  For Debug
         speedText.SetText(rb.linearVelocity.magnitude + "\n" + curState);
     }
+
+    public void CheckNonBoostTime()
+    {
+        if (player.isPause) return;
+        
+        if (curState == MovementState.Walk || curState == MovementState.Idle || curState == MovementState.Air)
+        {
+            if(nonBoostTime < Time.deltaTime * (-20f)) nonBoostTime = Time.deltaTime * (-20f);
+            nonBoostTime += Time.deltaTime;
+        }
+        else
+        {
+            if(nonBoostTime > Time.deltaTime * (60f)) nonBoostTime = Time.deltaTime * (60f);
+            
+            nonBoostTime -= Time.deltaTime;
+        }
+    }
+
+    public float GetNonBoostTime()
+    {
+        return nonBoostTime;
+    }
+    
 
     public void PlayerRotation(float yRot)
     {

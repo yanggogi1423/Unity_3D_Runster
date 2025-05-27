@@ -145,4 +145,8 @@ public class Climbing : MonoBehaviour
         climbJumpsLeft--;
     }
 
+    public float GetClimbTimeRatio()
+    {
+        return climbTimer / maxClimbTime;
+    }
 }

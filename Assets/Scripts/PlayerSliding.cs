@@ -98,4 +98,9 @@ public class PlayerSliding : MonoBehaviour
         
         // player.localScale = new Vector3(player.localScale.x, startYScale, player.localScale.z);
     }
+
+    public float GetSlideTimeRatio()
+    {
+        return slideTimer / maxSlideTime;
+    }
 }

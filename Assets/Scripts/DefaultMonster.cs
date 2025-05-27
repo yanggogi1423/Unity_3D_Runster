@@ -25,6 +25,9 @@ public class DefaultMonster : MonoBehaviour
     public float particleDuration = 3f;
     public bool isSpawning;
 
+    [Header("Handler")]
+    [SerializeField] private bool isDead;
+    
     private void Awake()
     {
         curHp = maxHp;
@@ -32,6 +35,7 @@ public class DefaultMonster : MonoBehaviour
         if (mimic == null)
             mimic = GetComponent<Mimic>();
         
+        isDead = false;
     }
 
     private void Start()
@@ -80,9 +84,13 @@ public class DefaultMonster : MonoBehaviour
     {
         curHp -= damage;
 
-        if (curHp <= 0)
+        if (curHp <= 0 && !isDead)
         {
             Debug.Log("Monster Die!");
+            
+            isDead = true;
+            de.target.gameObject.GetComponent<Player>().KillEnemies();
+            
             FadeAndDie();
         }
     }
