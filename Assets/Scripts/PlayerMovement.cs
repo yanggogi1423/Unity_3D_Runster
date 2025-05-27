@@ -166,7 +166,7 @@ public class PlayerMovement : MonoBehaviour
             curState = MovementState.Air;
             anim.SetBool("isWalk", false);
             anim.SetBool("isSprint", false);
-            anim.SetBool("isIdle", false);
+            anim.SetBool("isIdle", false);  //  Climb인 경우에는 상쇄된다.
 
             Jump();
             

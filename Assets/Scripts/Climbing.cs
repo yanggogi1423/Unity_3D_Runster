@@ -110,6 +110,9 @@ public class Climbing : MonoBehaviour
         pm.climbing = true;
         
         pm.anim.SetBool("isClimbing", true);
+        
+        //  계속해서 climbing하는 현상을 제거
+        pm.anim.SetBool("isIdle", true);
 
         lastWall = frontWallHit.transform;
         lastWallNormal = frontWallHit.normal;
