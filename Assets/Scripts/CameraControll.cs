@@ -39,9 +39,18 @@ public class CameraControll : MonoBehaviour
 
     public CameraState curState;
     public KeyCode camChangeKey = KeyCode.F5;
+    
+    [Header("Cinemachine")]
+    CinemachineBrain brain;
 
     private void Start()
     {
+        // brain = CinemachineBrain.GetActiveBrain(0);
+        // if (brain != null)
+        // {
+        //     brain.UpdateMethod = CinemachineBrain.UpdateMethods.ManualUpdate;
+        // }
+        
         cursorVisibility = false;
         SetCursorVisible();
         
@@ -76,9 +85,21 @@ public class CameraControll : MonoBehaviour
         if (Input.GetKeyDown(cursorVisibleKey))
         {
             cursorVisibility = !cursorVisibility;
+            pm.player.isPause = cursorVisibility;
+            
             SetCursorVisible();
         }
     }
+    
+    
+    // private void LateUpdate()
+    // {
+    //     // timeScale이 0일 때도 blending 작동하게 만듦
+    //     if (brain != null)
+    //     {
+    //         brain.ManualUpdate();
+    //     }
+    // }
 
     public void ExitMenu()
     {
@@ -108,6 +129,7 @@ public class CameraControll : MonoBehaviour
 
     public void ControlBySwitchButton()
     {
+        
         if (curState == CameraState.First)
         {
             curState = CameraState.Third;

@@ -25,6 +25,8 @@ public class PlayerAttack : MonoBehaviour
 
     private void Update()
     {
+        if (pm.player.isPause) return;
+        
         Detection();
         CheckInput();
     }

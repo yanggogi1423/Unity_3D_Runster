@@ -14,6 +14,10 @@ public class DefaultMonster : MonoBehaviour
 
     [Header("For Animations")] public float fadeDuration = 2f;
 
+    [Header("Distance Values")] 
+    [SerializeField] private float traceDist;
+    [SerializeField] private float attackDist;
+
     [Header("References")] [SerializeField]
     private List<Renderer> renderers = new List<Renderer>(); // 본체 렌더러들
 
@@ -28,6 +32,19 @@ public class DefaultMonster : MonoBehaviour
     [Header("Handler")]
     [SerializeField] private bool isDead;
     
+    
+    //  State Machine
+    public enum MonsterState
+    {
+        Idle,
+        Trace,
+        Attack,
+        Patrol,
+        Die
+    }
+
+    public MonsterState curState;
+    
     private void Awake()
     {
         curHp = maxHp;
@@ -36,6 +53,8 @@ public class DefaultMonster : MonoBehaviour
             mimic = GetComponent<Mimic>();
         
         isDead = false;
+        
+        curState = MonsterState.Idle;
     }
 
     private void Start()
@@ -43,6 +62,24 @@ public class DefaultMonster : MonoBehaviour
         de = GetComponent<DefaultEnemyMovement>();
         
         StartSpawnEffect();
+    }
+
+    public void CheckState()
+    {
+        if (CheckDistanceToTarget() <= attackDist)
+        {
+            curState = MonsterState.Attack;
+        }
+        else if (CheckDistanceToTarget() <= traceDist)
+        {
+            curState = MonsterState.Trace;
+        }
+        
+    }
+
+    public float CheckDistanceToTarget()
+    {
+        return Vector3.Distance(transform.position, de.target.transform.position);
     }
 
     public void StartSpawnEffect()
@@ -87,6 +124,8 @@ public class DefaultMonster : MonoBehaviour
         if (curHp <= 0 && !isDead)
         {
             Debug.Log("Monster Die!");
+
+            curState = MonsterState.Die;
             
             isDead = true;
             de.target.gameObject.GetComponent<Player>().KillEnemies();

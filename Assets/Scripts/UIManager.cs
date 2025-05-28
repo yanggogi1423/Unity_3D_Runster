@@ -115,9 +115,9 @@ public class UIManager : MonoBehaviour
                     }
                     break;
                 case 1:
-                    player.curBoost = Mathf.Lerp(player.curBoost, player.desireBoost, 0.1f);  // ✅ 수정: curHp → curBoost
+                    player.curBoost = Mathf.Lerp(player.curBoost, player.desireBoost, 0.1f);
                     playerBoost.fillAmount = player.curBoost / player.maxBoost;
-                    if (Mathf.Abs(player.curBoost - player.desireBoost) < 0.01f)  // ✅ 수렴 조건 강화
+                    if (Mathf.Abs(player.curBoost - player.desireBoost) < 0.01f)
                     {
                         player.curBoost = player.desireBoost;
                         boostCoroutine = null;
