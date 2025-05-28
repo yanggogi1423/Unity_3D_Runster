@@ -8,17 +8,15 @@ using Random = UnityEngine.Random;
 
 public class DefaultMonster : MonoBehaviour
 {
-    [Header("Attributes")] 
+    [Header("Attributes")]
     [SerializeField] private int maxHp;
     [SerializeField] private int curHp;
     public int attackPower = 10;
 
     [Header("For Animations")] public float fadeDuration = 2f;
 
-    [Header("Distance Values")] 
+    [Header("Distance Values")]
     private Transform playerTarget;
-    private Transform patrolDummyTarget; // 무의미한 빈 Transform (patrol 시 사용)
-
     [SerializeField] private float traceDist;
     [SerializeField] private float attackDist;
 
@@ -29,12 +27,12 @@ public class DefaultMonster : MonoBehaviour
     private Vector3 patrolTarget;
 
     [SerializeField] private int maxAttackLegs = 3;
-    [SerializeField] private float attackCooldown = 1f;
+    [SerializeField] private float attackCooldown = 3f;
     private float lastAttackTime = -999f;
 
-    [Header("References")] 
-    [SerializeField] private List<Renderer> renderers = new List<Renderer>(); // 부체 렌더러드
-    [SerializeField] private Mimic mimic; // Mimic 참조
+    [Header("References")]
+    [SerializeField] private List<Renderer> renderers = new List<Renderer>();
+    [SerializeField] private Mimic mimic;
     [SerializeField] private DefaultEnemyMovement de;
 
     [Header("Particles")]
@@ -45,7 +43,15 @@ public class DefaultMonster : MonoBehaviour
     [Header("Handler")]
     [SerializeField] private bool isDead;
 
-    //  State Machine
+    [Header("Manager")] public InGameManager inGameManager;
+
+    [Header("Effects")] public GameObject ultimateMonster;
+    [SerializeField] private Renderer sphereRenderer; // 인스펙터에서 할당
+    private Material sphereMaterialInstance;
+    private GameObject hitEffectPrefab;
+
+    private bool isUltimate;
+
     public enum MonsterState
     {
         Trace,
@@ -64,19 +70,26 @@ public class DefaultMonster : MonoBehaviour
 
         isDead = false;
         curState = MonsterState.Patrol;
-
         playerTarget = GameObject.FindGameObjectWithTag("Player").transform;
-    
-        // dummy patrol target 생성
-        GameObject dummy = new GameObject("PatrolDummy");
-        patrolDummyTarget = dummy.transform;
-        de.target = patrolDummyTarget; // 처음엔 dummy로 설정
-    }
 
+        isUltimate = false;
+    }
 
     private void Start()
     {
         de = GetComponent<DefaultEnemyMovement>();
+        inGameManager = GameObject.Find("InGameManager").GetComponent<InGameManager>();
+        
+        if (sphereRenderer != null)
+        {
+            // 공유 머티리얼을 복제해서 이 오브젝트만의 머티리얼로 만든다
+            sphereMaterialInstance = new Material(sphereRenderer.sharedMaterial);
+            sphereRenderer.material = sphereMaterialInstance;
+            sphereMaterialInstance.color = Color.black; // 시작은 검정색
+        }
+        
+        hitEffectPrefab = Resources.Load<GameObject>("vfx_Explosion_01");
+        
         StartSpawnEffect();
     }
 
@@ -89,27 +102,33 @@ public class DefaultMonster : MonoBehaviour
         switch (curState)
         {
             case MonsterState.Patrol:
-                HandlePatrol(); 
-                break;
-
+                HandlePatrol(); break;
             case MonsterState.Trace:
                 de.agent.isStopped = false;
-                HandleTrace();
-                break;
-
+                HandleTrace(); break;
             case MonsterState.Attack:
                 de.agent.isStopped = false;
-                HandleAttack();
-                break;
-
+                HandleAttack(); break;
             case MonsterState.Die:
                 de.agent.isStopped = true;
                 break;
         }
+        
     }
 
     public void CheckState()
     {
+        //  Ultimate State
+        if (curHp <= maxHp * 0.3f && !isUltimate)
+        {
+            de.target = playerTarget;
+            isUltimate = true;
+            //  attackDist *= 2f;
+            traceDist *= 15f;
+
+            UltimateMonster();
+        }
+        
         float dist = Vector3.Distance(transform.position, playerTarget.position);
 
         if (dist <= attackDist)
@@ -122,27 +141,39 @@ public class DefaultMonster : MonoBehaviour
             curState = MonsterState.Trace;
             de.target = playerTarget;
         }
-        else if (!de.agent.hasPath || de.agent.remainingDistance < 0.5f)
+        else if (!de.agent.hasPath || de.agent.remainingDistance < 0.5f || dist > traceDist)
         {
             curState = MonsterState.Patrol;
-            de.target = patrolDummyTarget; // player가 아닌 dummy로 전환
+            de.target = null;
         }
     }
-    
-    public float CheckDistanceToTarget()
+
+    private void UltimateMonster()
     {
-        return Vector3.Distance(transform.position, playerTarget.position);
+        ultimateMonster.SetActive(true);
+        de.speed *= 3.5f;
+        de.velocityLerpCoef *= 2f;
+        
+        //  mimic.BoostLegSpeed();
+        
+        Invoke(nameof(TurnOffUltimate),3f);
     }
 
+    private void TurnOffUltimate()
+    {
+        ultimateMonster.SetActive(false);
+    }
 
     private void HandleTrace()
     {
-        if (de.agent.isStopped) return;
+        if (de.agent.isStopped || de.target == null) return;
         de.agent.SetDestination(de.target.position);
     }
 
     private void HandleAttack()
     {
+        if (de.target == null) return;
+
         de.agent.SetDestination(transform.position);
 
         Vector3 dir = (de.target.position - transform.position).normalized;
@@ -153,56 +184,9 @@ public class DefaultMonster : MonoBehaviour
         if (Time.time - lastAttackTime >= attackCooldown)
         {
             lastAttackTime = Time.time;
-            AttackWithLegs();
+            mimic.AttackWithLegsAtTarget(de.target.position, maxAttackLegs);
+            de.target.GetComponent<Player>()?.GetDamage(attackPower);
         }
-    }
-
-    private void AttackWithLegs()
-    {
-        if (mimic.legLineList.Count == 0) return;
-
-        List<LineRenderer> legLines = new List<LineRenderer>(mimic.legLineList);
-        int count = Mathf.Min(maxAttackLegs, legLines.Count);
-
-        for (int i = 0; i < count; i++)
-        {
-            int idx = Random.Range(0, legLines.Count);
-            LineRenderer selectedLeg = legLines[idx];
-            legLines.RemoveAt(idx);
-            StartCoroutine(SimulateLegAttack(selectedLeg));
-        }
-
-        de.target.GetComponent<Player>()?.GetDamage(attackPower);
-    }
-
-    private IEnumerator SimulateLegAttack(LineRenderer leg)
-    {
-        if (leg == null) yield break;
-
-        Color originalColor = leg.material.color;
-        leg.material.color = Color.red;
-
-        float t = 0f;
-        float duration = 0.2f;
-        Vector3[] originalPoints = new Vector3[leg.positionCount];
-        leg.GetPositions(originalPoints);
-
-        Vector3[] newPoints = new Vector3[leg.positionCount];
-        originalPoints.CopyTo(newPoints, 0);
-
-        for (; t < duration; t += Time.deltaTime)
-        {
-            for (int i = 1; i < newPoints.Length; i++)
-            {
-                newPoints[i] += Vector3.forward * 0.01f;
-            }
-
-            leg.SetPositions(newPoints);
-            yield return null;
-        }
-
-        leg.SetPositions(originalPoints);
-        leg.material.color = originalColor;
     }
 
     private void HandlePatrol()
@@ -214,24 +198,21 @@ public class DefaultMonster : MonoBehaviour
             if (patrolTimer >= patrolWaitTime)
             {
                 Vector3 randomDir = Random.insideUnitSphere * patrolRadius;
-                randomDir.y = 0f; // y축 고정
+                randomDir.y = 0f;
                 Vector3 candidatePos = transform.position + randomDir;
 
                 if (NavMesh.SamplePosition(candidatePos, out NavMeshHit hit, patrolRadius, NavMesh.AllAreas))
                 {
                     patrolTarget = hit.position;
-                    de.agent.isStopped = false; //  이동 가능하게 설정
+                    de.agent.isStopped = false;
                     de.agent.SetDestination(patrolTarget);
                 }
 
-                // ⏱️ 다음 쿨타임은 2~3초 사이로 랜덤
                 patrolWaitTime = Random.Range(2f, 3f);
                 patrolTimer = 0f;
             }
         }
     }
-
-
 
     public void StartSpawnEffect()
     {
@@ -248,7 +229,6 @@ public class DefaultMonster : MonoBehaviour
     {
         float timer = 0f;
         Vector3 originalScale = spawnParticle.transform.localScale;
-
         de.agent.isStopped = true;
 
         while (timer < particleDuration)
@@ -268,11 +248,24 @@ public class DefaultMonster : MonoBehaviour
     {
         curHp -= damage;
 
+        if (hitEffectPrefab != null)
+        {
+            GameObject fx = Instantiate(hitEffectPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
+            Destroy(fx, 1.5f); // 일정 시간 후 자동 제거
+        }
+        else
+        {
+            Debug.LogError("Prefab is null");
+        }
+        UpdateSphereColor(); // 색상 갱신
+        
+
         if (curHp <= 0 && !isDead)
         {
-            Debug.Log("Monster Die!");
             curState = MonsterState.Die;
             isDead = true;
+            
+            de.target = playerTarget;   //  Null Exception 방지
             de.target.gameObject.GetComponent<Player>().KillEnemies();
             FadeAndDie();
         }
@@ -281,6 +274,9 @@ public class DefaultMonster : MonoBehaviour
     private void FadeAndDie()
     {
         de.agent.isStopped = true;
+        
+        inGameManager.UpdateMonsterText();
+        
         StartCoroutine(FadeOutCoroutine());
         StartCoroutine(ShakeCoroutine());
     }
@@ -290,17 +286,12 @@ public class DefaultMonster : MonoBehaviour
         float timer = 0f;
 
         foreach (var rend in renderers)
-        {
             rend.material = new Material(rend.material);
-        }
 
-        if (mimic != null)
+        foreach (var legLine in mimic.legLineList)
         {
-            foreach (var legLine in mimic.legLineList)
-            {
-                if (legLine != null)
-                    legLine.material = new Material(legLine.material);
-            }
+            if (legLine != null)
+                legLine.material = new Material(legLine.material);
         }
 
         while (timer < fadeDuration)
@@ -327,16 +318,13 @@ public class DefaultMonster : MonoBehaviour
             }
         }
 
-        if (mimic != null)
+        foreach (var legLine in mimic.legLineList)
         {
-            foreach (var legLine in mimic.legLineList)
+            if (legLine != null && legLine.material.HasProperty("_Color"))
             {
-                if (legLine != null && legLine.material.HasProperty("_Color"))
-                {
-                    Color c = legLine.material.color;
-                    c.a = alpha;
-                    legLine.material.color = c;
-                }
+                Color c = legLine.material.color;
+                c.a = alpha;
+                legLine.material.color = c;
             }
         }
     }
@@ -365,15 +353,23 @@ public class DefaultMonster : MonoBehaviour
 
         transform.rotation = originalRot;
     }
+    
+    private void UpdateSphereColor()
+    {
+        if (sphereMaterialInstance == null) return;
+
+        float healthRatio = 1f - (float)curHp / maxHp; // 체력이 100% → 0%
+        Color newColor = Color.Lerp(Color.black, Color.red, healthRatio);
+        sphereMaterialInstance.color = newColor;
+    }
+
 
     private void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.CompareTag("Player"))
-        {
             other.gameObject.GetComponent<Player>().GetDamage(attackPower);
-        }
     }
-    
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
@@ -382,5 +378,4 @@ public class DefaultMonster : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackDist);
     }
-
 }

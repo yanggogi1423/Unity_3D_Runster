@@ -253,7 +253,7 @@ public class PlayerMovement : MonoBehaviour
     public bool CheckShootable()
     {
         return (curState == MovementState.Idle || curState == MovementState.Walk ||
-                curState == MovementState.Sprinting || curState == MovementState.Air);
+                curState == MovementState.Sprinting || (curState == MovementState.Air && readyToJump));
     }
     
     private void UpdateBlendValue()
@@ -351,8 +351,8 @@ public class PlayerMovement : MonoBehaviour
             curState = MovementState.Air;
         }
         
-        //  if DesiredMoveSpeed Change Drastically -> 차이가 6 이상일 때 천천히 줄어듦
-        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 6f && moveSpeed != 0)
+        //  if DesiredMoveSpeed Change Drastically -> 차이가 8 이상일 때 천천히 줄어듦
+        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 8f && moveSpeed != 0)
         {
             StopAllCoroutines();
             StartCoroutine(LerpMoveSpeedCoroutine());

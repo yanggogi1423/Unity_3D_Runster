@@ -23,13 +23,18 @@ public class Player : MonoBehaviour
 
     [Header("References")]
     public CapsuleCollider cc;
+    private PlayerMovement pm;
+    private Rigidbody rb;
 
     [Header("Events")] //  Sync가 제대로 안맞는 문제가 존재.
     public UnityEvent OnPlayerHpChanged;
     public UnityEvent OnPlayerBoostChaged;
     public UnityEvent OnPlayerUltimateChanged;
 
-    [Header("References")] private PlayerMovement pm;
+    [Header("Effects")] 
+    public GameObject hyperEffects;
+
+    private bool isHyper;
 
     [Header("Handler")] 
     public bool isPause;
@@ -72,6 +77,9 @@ public class Player : MonoBehaviour
         
         boostCoroutine = null;
         boostLessCoroutine = null;
+
+        isHyper = false;
+        rb = GetComponent<Rigidbody>();
     }
 
     private void Start()
@@ -85,6 +93,18 @@ public class Player : MonoBehaviour
     {
         CheckAboutBoost();
         CheckAboutUltimate();
+        
+        //  Hyper
+        if (!isHyper && rb.linearVelocity.magnitude > 12f && pm.curState != PlayerMovement.MovementState.Air)
+        {
+            isHyper = true;
+            hyperEffects.SetActive(true);
+        }
+        else if(isHyper && rb.linearVelocity.magnitude <= 12f)
+        {
+            isHyper = false;
+            hyperEffects.SetActive(false);
+        }
     }
 
     public void CheckAboutBoost()

@@ -11,58 +11,52 @@ namespace MimicSpace
 
         [Range(2, 20)]
         public int numberOfLegs = 5;
-        [Tooltip("The number of splines per leg")]
         [Range(1, 10)]
         public int partsPerLeg = 4;
-        int maxLegs;
 
+        int maxLegs;
         public int legCount;
         public int deployedLegs;
-        [Range(0, 19)]
-        public int minimumAnchoredLegs = 2;
+        [Range(0, 19)] public int minimumAnchoredLegs = 2;
         public int minimumAnchoredParts;
 
-        [Tooltip("Minimum duration before leg is replaced")]
         public float minLegLifetime = 5;
-        [Tooltip("Maximum duration before leg is replaced")]
         public float maxLegLifetime = 15;
 
         public Vector3 legPlacerOrigin = Vector3.zero;
-        [Tooltip("Leg placement radius offset")]
         public float newLegRadius = 3;
 
         public float minLegDistance = 4.5f;
         public float maxLegDistance = 6.3f;
 
         [Range(2, 50)]
-        [Tooltip("Number of spline samples per legpart")]
         public int legResolution = 40;
 
-        [Tooltip("Minimum lerp coeficient for leg growth smoothing")]
         public float minGrowCoef = 4.5f;
-        [Tooltip("MAximum lerp coeficient for leg growth smoothing")]
         public float maxGrowCoef = 6.5f;
 
-        [Tooltip("Minimum duration before a new leg can be placed")]
         public float newLegCooldown = 0.3f;
-
         bool canCreateLeg = true;
 
         List<GameObject> availableLegPool = new List<GameObject>();
 
-        [Tooltip("This must be updates as the Mimin moves to assure great leg placement")]
         public Vector3 velocity;
-        
-        //  For Animations
+
         public DefaultMonster dm;
         public List<LineRenderer> legLineList = new List<LineRenderer>();
-        // Mimic.cs 내부
+
         public bool isDying = false;
+
+        //   공격 관련
+        public float attackCooldown = 3f;
+        public float attackDistance = 5f;
+        public int maxAttackLegs = 3;
+        private float lastAttackTime;
+        public Transform player;
 
         void Start()
         {
             ResetMimic();
-
             dm = GetComponent<DefaultMonster>();
         }
 
@@ -77,11 +71,11 @@ namespace MimicSpace
             {
                 Destroy(g.gameObject);
             }
+
             legCount = 0;
             deployedLegs = 0;
-
             maxLegs = numberOfLegs * partsPerLeg;
-            float rot = 360f / maxLegs;
+
             Vector2 randV = Random.insideUnitCircle;
             velocity = new Vector3(randV.x, 0, randV.y);
             minimumAnchoredParts = minimumAnchoredLegs * partsPerLeg;
@@ -97,11 +91,19 @@ namespace MimicSpace
 
         void Update()
         {
-            if (isDying) return;
-            if (dm.isSpawning) return;
-            
-            if (!canCreateLeg)
+            if (isDying || dm.isSpawning) return;
+
+            if (dm.curState.ToString() == "Attack" && player != null)
+            {
+                if (Time.time - lastAttackTime > attackCooldown && Vector3.Distance(transform.position, player.position) < attackDistance)
+                {
+                    lastAttackTime = Time.time;
+                    AttackWithLegsAtTarget(player.position, maxAttackLegs);
+                }
                 return;
+            }
+
+            if (!canCreateLeg) return;
 
             legPlacerOrigin = transform.position + velocity.normalized * newLegRadius;
 
@@ -129,7 +131,6 @@ namespace MimicSpace
                                      ((newLegPosition - transform.position) + velocity.normalized * (newLegPosition - transform.position).magnitude) / 2f;
                 }
 
-                // ✅ LegPart 레이어 제외 마스크 적용
                 int groundMask = ~LayerMask.GetMask("MimicBody", "LegPart");
 
                 RaycastHit hit;
@@ -141,7 +142,7 @@ namespace MimicSpace
 
                 float lifeTime = Random.Range(minLegLifetime, maxLegLifetime);
 
-                StartCoroutine("NewLegCooldown");
+                StartCoroutine(NewLegCooldown());
                 for (int i = 0; i < partsPerLeg; i++)
                 {
                     RequestLeg(myHit, legResolution, maxLegDistance, Random.Range(minGrowCoef, maxGrowCoef), this, lifeTime);
@@ -151,40 +152,68 @@ namespace MimicSpace
             }
         }
 
-
-        // object pooling to limit leg instantiation
-        void RequestLeg(Vector3 footPosition, int legResolution, float maxLegDistance, float growCoef, Mimic myMimic, float lifeTime)
+        private void RequestLeg(Vector3 footPosition, int legResolution, float maxLegDistance, float growCoef, Mimic myMimic, float lifeTime)
         {
-            GameObject newLeg;
-            if (availableLegPool.Count > 0)
-            {
-                newLeg = availableLegPool[availableLegPool.Count - 1];
-                availableLegPool.RemoveAt(availableLegPool.Count - 1);
-            }
-            else
-            {
-                newLeg = Instantiate(legPrefab, transform.position, Quaternion.identity);
-            }
-
+            GameObject newLeg = GetLegFromPool();
             newLeg.SetActive(true);
-            newLeg.GetComponent<Leg>().Initialize(footPosition, legResolution, maxLegDistance, growCoef, myMimic, lifeTime);
-
-            // ✅ 레이어 자동 지정
-            int legLayer = LayerMask.NameToLayer("LegPart");
-            newLeg.layer = legLayer;
-            foreach (Transform child in newLeg.transform)
-                child.gameObject.layer = legLayer;
-
-            newLeg.transform.SetParent(myMimic.transform);
-            
+            newLeg.GetComponent<Leg>().Initialize(footPosition, legResolution, maxLegDistance, growCoef, this, lifeTime);
+            SetLegLayer(newLeg);
         }
 
+        private GameObject GetLegFromPool()
+        {
+            if (availableLegPool.Count > 0)
+            {
+                var leg = availableLegPool[availableLegPool.Count - 1];
+                availableLegPool.RemoveAt(availableLegPool.Count - 1);
+                return leg;
+            }
+            return Instantiate(legPrefab, transform.position, Quaternion.identity);
+        }
+
+        private void SetLegLayer(GameObject leg)
+        {
+            int legLayer = LayerMask.NameToLayer("LegPart");
+            leg.layer = legLayer;
+            foreach (Transform child in leg.transform)
+                child.gameObject.layer = legLayer;
+            leg.transform.SetParent(transform);
+        }
 
         public void RecycleLeg(GameObject leg)
         {
             availableLegPool.Add(leg);
             leg.SetActive(false);
         }
-    }
 
+        public void AttackWithLegsAtTarget(Vector3 targetPosition, int attackLegCount)
+        {
+            for (int i = 0; i < attackLegCount; i++)
+            {
+                Vector3 attackTargetPos = targetPosition + Random.insideUnitSphere * 0.5f;
+                attackTargetPos.y = targetPosition.y;
+
+                GameObject newLeg = GetLegFromPool();
+                newLeg.SetActive(true);
+                var leg = newLeg.GetComponent<Leg>();
+                
+                leg.isAttackLeg = true; 
+                leg.Initialize(attackTargetPos, legResolution, maxLegDistance, Random.Range(minGrowCoef, maxGrowCoef), this, 1.5f);
+                SetLegLayer(newLeg);
+            }
+        }
+        
+        public void BoostLegSpeed()
+        {
+            minGrowCoef *= 1.8f;
+            maxGrowCoef *= 1.8f;
+
+            minLegLifetime *= 0.5f;
+            maxLegLifetime *= 0.5f;
+
+            newLegCooldown *= 0.5f;
+
+            maxLegDistance *= 1.5f; // ▶ 더 멀리 뻗을 수 있도록
+        }
+    }
 }

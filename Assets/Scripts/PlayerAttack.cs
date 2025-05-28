@@ -15,6 +15,8 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private GameObject bulletEffectPrefab;   // 총알 이펙트 프리팹
     [SerializeField] private float speed = 10000f;
 
+    [Header("MuzzleFlash")] public GameObject muzzle;
+
     [Header("References")] 
     public PlayerMovement pm;
 
@@ -53,6 +55,8 @@ public class PlayerAttack : MonoBehaviour
     private void Shoot()
     {
         Ray ray = GetCenterScreenRay();
+        
+        muzzle.SetActive(true);
 
         if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
         {
@@ -69,6 +73,13 @@ public class PlayerAttack : MonoBehaviour
             GameObject bullet = Instantiate(bulletEffectPrefab, firePos.position, rot);
             bullet.GetComponent<Rigidbody>().AddForce(dir * speed, ForceMode.Impulse);
         }
+        
+        Invoke(nameof(TurnOffMuzzle),0.1f);
+    }
+
+    private void TurnOffMuzzle()
+    {
+        muzzle.SetActive(false);
     }
     
     private void Detection()

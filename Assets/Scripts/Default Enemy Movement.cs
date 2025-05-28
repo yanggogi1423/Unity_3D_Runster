@@ -18,6 +18,7 @@ public class DefaultEnemyMovement : MonoBehaviour
     public NavMeshAgent agent;
     private Mimic myMimic;
     private Rigidbody rb;
+    private DefaultMonster dm;
 
     [Header("StateMachine")] 
     public Transform target;
@@ -29,6 +30,7 @@ public class DefaultEnemyMovement : MonoBehaviour
         target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
 
         myMimic = GetComponent<Mimic>();
+        dm = GetComponent<DefaultMonster>();
     }
 
     private void Start()
@@ -55,8 +57,10 @@ public class DefaultEnemyMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //  TODO : Monster State로 확인하기
-        if(!agent.isStopped)
-            agent.SetDestination(target.position);
+        //  Patrol일 때 null임
+        if (target == null || agent.isStopped)
+            return;
+
+        agent.SetDestination(target.position);
     }
 }

@@ -38,7 +38,6 @@ public class UIManager : MonoBehaviour
 
     [Header("Top Menu")] 
     public GameObject topContainer;
-
     public Animator topAnim;
     public Button exitMenuButton;
     public bool topMenuVisible;
