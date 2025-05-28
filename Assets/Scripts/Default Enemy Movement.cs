@@ -55,6 +55,8 @@ public class DefaultEnemyMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        agent.SetDestination(target.position);
+        //  TODO : Monster State로 확인하기
+        if(!agent.isStopped)
+            agent.SetDestination(target.position);
     }
 }

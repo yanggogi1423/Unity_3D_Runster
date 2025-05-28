@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using MimicSpace;
 using UnityEngine;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
 
 public class DefaultMonster : MonoBehaviour
 {
-    
     [Header("Attributes")] 
     [SerializeField] private int maxHp;
     [SerializeField] private int curHp;
@@ -18,21 +18,22 @@ public class DefaultMonster : MonoBehaviour
     [Header("Distance Values")] 
     [SerializeField] private float traceDist;
     [SerializeField] private float attackDist;
-    
+
     [Header("Patrol Settings")]
     [SerializeField] private float patrolRadius = 5f;
     [SerializeField] private float patrolWaitTime = 3f;
-
     private float patrolTimer;
     private Vector3 patrolTarget;
 
+    [SerializeField] private int maxAttackLegs = 3;
+    [SerializeField] private float attackCooldown = 1f;
+    private float lastAttackTime = -999f;
 
-    [Header("References")] [SerializeField]
-    private List<Renderer> renderers = new List<Renderer>(); // 본체 렌더러들
-
+    [Header("References")] 
+    [SerializeField] private List<Renderer> renderers = new List<Renderer>(); // 부체 렌더러드
     [SerializeField] private Mimic mimic; // Mimic 참조
     [SerializeField] private DefaultEnemyMovement de;
-    
+
     [Header("Particles")]
     public GameObject spawnParticle;
     public float particleDuration = 3f;
@@ -40,12 +41,10 @@ public class DefaultMonster : MonoBehaviour
 
     [Header("Handler")]
     [SerializeField] private bool isDead;
-    
-    
+
     //  State Machine
     public enum MonsterState
     {
-        Idle,
         Trace,
         Attack,
         Patrol,
@@ -53,26 +52,24 @@ public class DefaultMonster : MonoBehaviour
     }
 
     public MonsterState curState;
-    
+
     private void Awake()
     {
         curHp = maxHp;
 
         if (mimic == null)
             mimic = GetComponent<Mimic>();
-        
+
         isDead = false;
-        
-        curState = MonsterState.Idle;
+        curState = MonsterState.Patrol;
     }
 
     private void Start()
     {
         de = GetComponent<DefaultEnemyMovement>();
-        
         StartSpawnEffect();
     }
-    
+
     private void Update()
     {
         if (isDead || isSpawning) return;
@@ -82,16 +79,24 @@ public class DefaultMonster : MonoBehaviour
         switch (curState)
         {
             case MonsterState.Patrol:
+                de.agent.isStopped = false;
                 HandlePatrol();
                 break;
+
             case MonsterState.Trace:
+                de.agent.isStopped = false;
                 HandleTrace();
                 break;
+
             case MonsterState.Attack:
+                de.agent.isStopped = true;
                 HandleAttack();
                 break;
-        }
 
+            case MonsterState.Die:
+                de.agent.isStopped = true;
+                break;
+        }
     }
 
     public void CheckState()
@@ -108,46 +113,89 @@ public class DefaultMonster : MonoBehaviour
         }
         else
         {
-            curState = MonsterState.Patrol; // ✅ 추가
+            curState = MonsterState.Patrol;
         }
     }
-
 
     public float CheckDistanceToTarget()
     {
         return Vector3.Distance(transform.position, de.target.transform.position);
     }
-    
+
     private void HandleTrace()
     {
         if (de.agent.isStopped) return;
-
-        // 플레이어 위치를 따라감
         de.agent.SetDestination(de.target.position);
     }
-    
+
     private void HandleAttack()
     {
-        // 공격 범위 내 도달한 상태 → 멈추고 공격 애니메이션 또는 타격 처리
-        de.agent.SetDestination(transform.position); // 멈춤
+        de.agent.SetDestination(transform.position);
 
-        // 여기서 플레이어 바라보게
         Vector3 dir = (de.target.position - transform.position).normalized;
         dir.y = 0f;
         if (dir != Vector3.zero)
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 10f);
 
-        // 공격 조건 타이밍 또는 애니메이션 트리거는 이곳에서 처리 가능
-        // 예시: anim.SetTrigger("attack");
+        if (Time.time - lastAttackTime >= attackCooldown)
+        {
+            lastAttackTime = Time.time;
+            AttackWithLegs();
+        }
     }
 
+    private void AttackWithLegs()
+    {
+        if (mimic.legLineList.Count == 0) return;
 
-    
+        List<LineRenderer> legLines = new List<LineRenderer>(mimic.legLineList);
+        int count = Mathf.Min(maxAttackLegs, legLines.Count);
+
+        for (int i = 0; i < count; i++)
+        {
+            int idx = Random.Range(0, legLines.Count);
+            LineRenderer selectedLeg = legLines[idx];
+            legLines.RemoveAt(idx);
+            StartCoroutine(SimulateLegAttack(selectedLeg));
+        }
+
+        de.target.GetComponent<Player>()?.GetDamage(attackPower);
+    }
+
+    private IEnumerator SimulateLegAttack(LineRenderer leg)
+    {
+        if (leg == null) yield break;
+
+        Color originalColor = leg.material.color;
+        leg.material.color = Color.red;
+
+        float t = 0f;
+        float duration = 0.2f;
+        Vector3[] originalPoints = new Vector3[leg.positionCount];
+        leg.GetPositions(originalPoints);
+
+        Vector3[] newPoints = new Vector3[leg.positionCount];
+        originalPoints.CopyTo(newPoints, 0);
+
+        for (; t < duration; t += Time.deltaTime)
+        {
+            for (int i = 1; i < newPoints.Length; i++)
+            {
+                newPoints[i] += Vector3.forward * 0.01f;
+            }
+
+            leg.SetPositions(newPoints);
+            yield return null;
+        }
+
+        leg.SetPositions(originalPoints);
+        leg.material.color = originalColor;
+    }
+
     private void HandlePatrol()
     {
         patrolTimer += Time.deltaTime;
 
-        // 도착했거나 목적지 없음 → 새 목적지 설정
         if (!de.agent.hasPath || de.agent.remainingDistance < 0.5f)
         {
             if (patrolTimer >= patrolWaitTime)
@@ -166,7 +214,6 @@ public class DefaultMonster : MonoBehaviour
         }
     }
 
-
     public void StartSpawnEffect()
     {
         if (spawnParticle == null) return;
@@ -183,24 +230,20 @@ public class DefaultMonster : MonoBehaviour
         float timer = 0f;
         Vector3 originalScale = spawnParticle.transform.localScale;
 
-        de.agent.isStopped = true; // 잠시 멈춤
+        de.agent.isStopped = true;
 
         while (timer < particleDuration)
         {
             timer += Time.deltaTime;
             float t = timer / particleDuration;
-
-            // 선형으로 작아짐
             spawnParticle.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, t);
-
             yield return null;
         }
 
         spawnParticle.SetActive(false);
-        de.agent.isStopped = false; // 이동 재개
+        de.agent.isStopped = false;
         isSpawning = false;
     }
-
 
     public void GetDamage(int damage)
     {
@@ -209,12 +252,9 @@ public class DefaultMonster : MonoBehaviour
         if (curHp <= 0 && !isDead)
         {
             Debug.Log("Monster Die!");
-
             curState = MonsterState.Die;
-            
             isDead = true;
             de.target.gameObject.GetComponent<Player>().KillEnemies();
-            
             FadeAndDie();
         }
     }
@@ -223,37 +263,24 @@ public class DefaultMonster : MonoBehaviour
     {
         de.agent.isStopped = true;
         StartCoroutine(FadeOutCoroutine());
-        StartCoroutine(ShakeCoroutine()); // 👈 흔들림 코루틴 시작
+        StartCoroutine(ShakeCoroutine());
     }
 
     private IEnumerator FadeOutCoroutine()
     {
         float timer = 0f;
 
-        // 본체 렌더러
         foreach (var rend in renderers)
         {
             rend.material = new Material(rend.material);
         }
 
-        // 다리 라인렌더러
         if (mimic != null)
         {
             foreach (var legLine in mimic.legLineList)
             {
                 if (legLine != null)
                     legLine.material = new Material(legLine.material);
-            }
-        }
-
-        if (mimic != null)
-        {
-            foreach (var legLine in mimic.legLineList)
-            {
-                if (legLine != null)
-                {
-                    legLine.material = new Material(legLine.material);
-                }
             }
         }
 
@@ -266,7 +293,6 @@ public class DefaultMonster : MonoBehaviour
         }
 
         SetAlpha(0f);
-
         Destroy(gameObject);
     }
 
@@ -295,29 +321,25 @@ public class DefaultMonster : MonoBehaviour
             }
         }
     }
-    
+
     private IEnumerator ShakeCoroutine()
     {
         float shakeDuration = fadeDuration;
         float elapsed = 0f;
-
         Quaternion originalRot = transform.rotation;
 
         while (elapsed < shakeDuration)
         {
             elapsed += Time.deltaTime;
-
             float progress = elapsed / shakeDuration;
-            float damper = 1f - progress;  // 시간이 지날수록 약해짐
+            float damper = 1f - progress;
 
-            // Y축, Z축 기반의 랜덤 진동값
             float yAngle = Mathf.PerlinNoise(Time.time * 10f, 0f) * 10f - 5f;
             float zAngle = Mathf.Sin(elapsed * 25f) * 5f;
 
             yAngle *= damper;
             zAngle *= damper;
 
-            // 회전 적용
             transform.rotation = originalRot * Quaternion.Euler(0f + yAngle, 0f, zAngle);
             yield return null;
         }
@@ -332,4 +354,14 @@ public class DefaultMonster : MonoBehaviour
             other.gameObject.GetComponent<Player>().GetDamage(attackPower);
         }
     }
+    
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, traceDist);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackDist);
+    }
+
 }

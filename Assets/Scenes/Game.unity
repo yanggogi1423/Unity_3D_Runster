@@ -732,10 +732,12 @@ MonoBehaviour:
   curHp: 0
   attackPower: 10
   fadeDuration: 2
-  traceDist: 10
-  attackDist: 1
+  traceDist: 5
+  attackDist: 1.5
   patrolRadius: 5
   patrolWaitTime: 3
+  maxAttackLegs: 3
+  attackCooldown: 1
   renderers:
   - {fileID: 254825263}
   mimic: {fileID: 0}
@@ -2333,10 +2335,12 @@ MonoBehaviour:
   curHp: 0
   attackPower: 10
   fadeDuration: 2
-  traceDist: 10
-  attackDist: 1
+  traceDist: 5
+  attackDist: 1.5
   patrolRadius: 5
   patrolWaitTime: 3
+  maxAttackLegs: 3
+  attackCooldown: 1
   renderers:
   - {fileID: 570360512}
   mimic: {fileID: 0}
@@ -3363,10 +3367,12 @@ MonoBehaviour:
   curHp: 0
   attackPower: 10
   fadeDuration: 2
-  traceDist: 10
-  attackDist: 1
+  traceDist: 5
+  attackDist: 1.5
   patrolRadius: 5
   patrolWaitTime: 3
+  maxAttackLegs: 3
+  attackCooldown: 1
   renderers:
   - {fileID: 1155412295}
   mimic: {fileID: 0}
@@ -3882,7 +3888,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 1000
-  field of view: 58
+  field of view: 60.000004
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -3909,7 +3915,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.78, y: -2.1, z: 0.3}
+  m_LocalPosition: {x: -5.78, y: -1, z: -5.85}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4040,10 +4046,12 @@ MonoBehaviour:
   curHp: 0
   attackPower: 10
   fadeDuration: 2
-  traceDist: 10
-  attackDist: 1
+  traceDist: 5
+  attackDist: 1.5
   patrolRadius: 5
   patrolWaitTime: 3
+  maxAttackLegs: 3
+  attackCooldown: 1
   renderers:
   - {fileID: 48478022}
   mimic: {fileID: 0}
@@ -4987,7 +4995,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 50, y: 0}
   m_SizeDelta: {x: 95, y: 86.09375}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1204168358
@@ -6522,7 +6530,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 50, y: 0}
   m_SizeDelta: {x: 95, y: 85.952385}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1537421194
@@ -7292,7 +7300,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 50, y: 0}
   m_SizeDelta: {x: 95, y: 86.09375}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1785338936
@@ -8936,10 +8944,12 @@ MonoBehaviour:
   curHp: 0
   attackPower: 10
   fadeDuration: 2
-  traceDist: 10
-  attackDist: 1
+  traceDist: 5
+  attackDist: 1.5
   patrolRadius: 5
   patrolWaitTime: 3
+  maxAttackLegs: 3
+  attackCooldown: 1
   renderers:
   - {fileID: 141028210}
   mimic: {fileID: 0}
