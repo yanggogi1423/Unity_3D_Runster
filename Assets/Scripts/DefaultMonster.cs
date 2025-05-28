@@ -16,6 +16,9 @@ public class DefaultMonster : MonoBehaviour
     [Header("For Animations")] public float fadeDuration = 2f;
 
     [Header("Distance Values")] 
+    private Transform playerTarget;
+    private Transform patrolDummyTarget; // 무의미한 빈 Transform (patrol 시 사용)
+
     [SerializeField] private float traceDist;
     [SerializeField] private float attackDist;
 
@@ -56,13 +59,20 @@ public class DefaultMonster : MonoBehaviour
     private void Awake()
     {
         curHp = maxHp;
-
         if (mimic == null)
             mimic = GetComponent<Mimic>();
 
         isDead = false;
         curState = MonsterState.Patrol;
+
+        playerTarget = GameObject.FindGameObjectWithTag("Player").transform;
+    
+        // dummy patrol target 생성
+        GameObject dummy = new GameObject("PatrolDummy");
+        patrolDummyTarget = dummy.transform;
+        de.target = patrolDummyTarget; // 처음엔 dummy로 설정
     }
+
 
     private void Start()
     {
@@ -79,8 +89,7 @@ public class DefaultMonster : MonoBehaviour
         switch (curState)
         {
             case MonsterState.Patrol:
-                de.agent.isStopped = false;
-                HandlePatrol();
+                HandlePatrol(); 
                 break;
 
             case MonsterState.Trace:
@@ -89,7 +98,7 @@ public class DefaultMonster : MonoBehaviour
                 break;
 
             case MonsterState.Attack:
-                de.agent.isStopped = true;
+                de.agent.isStopped = false;
                 HandleAttack();
                 break;
 
@@ -101,26 +110,30 @@ public class DefaultMonster : MonoBehaviour
 
     public void CheckState()
     {
-        float dist = CheckDistanceToTarget();
+        float dist = Vector3.Distance(transform.position, playerTarget.position);
 
         if (dist <= attackDist)
         {
             curState = MonsterState.Attack;
+            de.target = playerTarget;
         }
         else if (dist <= traceDist)
         {
             curState = MonsterState.Trace;
+            de.target = playerTarget;
         }
-        else
+        else if (!de.agent.hasPath || de.agent.remainingDistance < 0.5f)
         {
             curState = MonsterState.Patrol;
+            de.target = patrolDummyTarget; // player가 아닌 dummy로 전환
         }
     }
-
+    
     public float CheckDistanceToTarget()
     {
-        return Vector3.Distance(transform.position, de.target.transform.position);
+        return Vector3.Distance(transform.position, playerTarget.position);
     }
+
 
     private void HandleTrace()
     {
@@ -200,19 +213,25 @@ public class DefaultMonster : MonoBehaviour
         {
             if (patrolTimer >= patrolWaitTime)
             {
-                Vector3 randomDir = UnityEngine.Random.insideUnitSphere * patrolRadius;
-                randomDir += transform.position;
+                Vector3 randomDir = Random.insideUnitSphere * patrolRadius;
+                randomDir.y = 0f; // y축 고정
+                Vector3 candidatePos = transform.position + randomDir;
 
-                if (NavMesh.SamplePosition(randomDir, out NavMeshHit hit, patrolRadius, NavMesh.AllAreas))
+                if (NavMesh.SamplePosition(candidatePos, out NavMeshHit hit, patrolRadius, NavMesh.AllAreas))
                 {
                     patrolTarget = hit.position;
+                    de.agent.isStopped = false; //  이동 가능하게 설정
                     de.agent.SetDestination(patrolTarget);
                 }
 
+                // ⏱️ 다음 쿨타임은 2~3초 사이로 랜덤
+                patrolWaitTime = Random.Range(2f, 3f);
                 patrolTimer = 0f;
             }
         }
     }
+
+
 
     public void StartSpawnEffect()
     {
