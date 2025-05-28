@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MimicSpace;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class DefaultMonster : MonoBehaviour
 {
@@ -17,6 +18,14 @@ public class DefaultMonster : MonoBehaviour
     [Header("Distance Values")] 
     [SerializeField] private float traceDist;
     [SerializeField] private float attackDist;
+    
+    [Header("Patrol Settings")]
+    [SerializeField] private float patrolRadius = 5f;
+    [SerializeField] private float patrolWaitTime = 3f;
+
+    private float patrolTimer;
+    private Vector3 patrolTarget;
+
 
     [Header("References")] [SerializeField]
     private List<Renderer> renderers = new List<Renderer>(); // 본체 렌더러들
@@ -63,24 +72,100 @@ public class DefaultMonster : MonoBehaviour
         
         StartSpawnEffect();
     }
+    
+    private void Update()
+    {
+        if (isDead || isSpawning) return;
+
+        CheckState();
+
+        switch (curState)
+        {
+            case MonsterState.Patrol:
+                HandlePatrol();
+                break;
+            case MonsterState.Trace:
+                HandleTrace();
+                break;
+            case MonsterState.Attack:
+                HandleAttack();
+                break;
+        }
+
+    }
 
     public void CheckState()
     {
-        if (CheckDistanceToTarget() <= attackDist)
+        float dist = CheckDistanceToTarget();
+
+        if (dist <= attackDist)
         {
             curState = MonsterState.Attack;
         }
-        else if (CheckDistanceToTarget() <= traceDist)
+        else if (dist <= traceDist)
         {
             curState = MonsterState.Trace;
         }
-        
+        else
+        {
+            curState = MonsterState.Patrol; // ✅ 추가
+        }
     }
+
 
     public float CheckDistanceToTarget()
     {
         return Vector3.Distance(transform.position, de.target.transform.position);
     }
+    
+    private void HandleTrace()
+    {
+        if (de.agent.isStopped) return;
+
+        // 플레이어 위치를 따라감
+        de.agent.SetDestination(de.target.position);
+    }
+    
+    private void HandleAttack()
+    {
+        // 공격 범위 내 도달한 상태 → 멈추고 공격 애니메이션 또는 타격 처리
+        de.agent.SetDestination(transform.position); // 멈춤
+
+        // 여기서 플레이어 바라보게
+        Vector3 dir = (de.target.position - transform.position).normalized;
+        dir.y = 0f;
+        if (dir != Vector3.zero)
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 10f);
+
+        // 공격 조건 타이밍 또는 애니메이션 트리거는 이곳에서 처리 가능
+        // 예시: anim.SetTrigger("attack");
+    }
+
+
+    
+    private void HandlePatrol()
+    {
+        patrolTimer += Time.deltaTime;
+
+        // 도착했거나 목적지 없음 → 새 목적지 설정
+        if (!de.agent.hasPath || de.agent.remainingDistance < 0.5f)
+        {
+            if (patrolTimer >= patrolWaitTime)
+            {
+                Vector3 randomDir = UnityEngine.Random.insideUnitSphere * patrolRadius;
+                randomDir += transform.position;
+
+                if (NavMesh.SamplePosition(randomDir, out NavMeshHit hit, patrolRadius, NavMesh.AllAreas))
+                {
+                    patrolTarget = hit.position;
+                    de.agent.SetDestination(patrolTarget);
+                }
+
+                patrolTimer = 0f;
+            }
+        }
+    }
+
 
     public void StartSpawnEffect()
     {
