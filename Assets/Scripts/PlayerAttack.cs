@@ -19,11 +19,14 @@ public class PlayerAttack : MonoBehaviour
 
     [Header("References")] 
     public PlayerMovement pm;
+    public UltimateController uc;  // ← 추가
 
     private void Start()
     {
         pm = GetComponent<PlayerMovement>();
+        uc = GetComponent<UltimateController>(); // ← GetComponent로 연결
     }
+
 
     private void Update()
     {
@@ -35,22 +38,35 @@ public class PlayerAttack : MonoBehaviour
 
     private void CheckInput()
     {
-        if (Input.GetMouseButtonDown(0) && pm.CheckShootable() && pm.player.curBoost >= 2f)
+        if (Input.GetMouseButtonDown(0) && pm.CheckShootable())
         {
-            Shoot();
-        
-            if (pm.player.curBoost > 0f)   // 또는 desireBoost > 0f
+            if (uc.IsUltimateActive)
             {
-                pm.player.desireBoost -= 2f;
+                Transform target = uc.GetNearestEnemyInView();
+                if (target != null)
+                {
+                    ShootAtTarget(target.position);
+                }
+                else
+                {
+                    ShootForward(); // fallback
+                }
+            }
+            else
+            {
+                ShootForward();
 
-                // 최소 0 보장
-                pm.player.desireBoost = Mathf.Max(0f, pm.player.desireBoost);
-
-                // UI 갱신 트리거
-                pm.player.OnPlayerBoostChaged.Invoke();
+                if (pm.player.curBoost > 0f)
+                {
+                    pm.player.desireBoost -= 2f;
+                    pm.player.desireBoost = Mathf.Max(0f, pm.player.desireBoost);
+                    pm.player.OnPlayerBoostChaged.Invoke();
+                }
             }
         }
     }
+
+
 
     private void Shoot()
     {
@@ -115,4 +131,41 @@ public class PlayerAttack : MonoBehaviour
 
         return Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
     }
+    
+    private void ShootAtTarget(Vector3 targetPos)
+    {
+        Vector3 dir = (targetPos - firePos.position).normalized;
+        Quaternion rot = Quaternion.LookRotation(dir) * Quaternion.Euler(90f, 0f, 0f);
+
+        GameObject bullet = Instantiate(bulletEffectPrefab, firePos.position, rot);
+        bullet.GetComponent<Rigidbody>().AddForce(dir * speed, ForceMode.Impulse);
+
+        muzzle.SetActive(true);
+        Invoke(nameof(TurnOffMuzzle), 0.1f);
+    }
+
+    private void ShootForward()
+    {
+        Ray ray = GetCenterScreenRay();
+
+        muzzle.SetActive(true);
+
+        Vector3 shootPoint;
+        if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
+        {
+            shootPoint = hit.point;
+        }
+        else
+        {
+            shootPoint = ray.origin + ray.direction * maxDistance;
+        }
+
+        Vector3 dir = (shootPoint - firePos.position).normalized;
+        Quaternion rot = Quaternion.LookRotation(dir) * Quaternion.Euler(90f, 0f, 0f);
+        GameObject bullet = Instantiate(bulletEffectPrefab, firePos.position, rot);
+        bullet.GetComponent<Rigidbody>().AddForce(dir * speed, ForceMode.Impulse);
+
+        Invoke(nameof(TurnOffMuzzle), 0.1f);
+    }
+
 }

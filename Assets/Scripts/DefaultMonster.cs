@@ -36,6 +36,7 @@ public class DefaultMonster : MonoBehaviour
     [SerializeField] private List<Renderer> renderers = new List<Renderer>();
     [SerializeField] private Mimic mimic;
     [SerializeField] private DefaultEnemyMovement de;
+    private UltimateController uc;
 
     [Header("Particles")]
     public GameObject spawnParticle;
@@ -56,6 +57,8 @@ public class DefaultMonster : MonoBehaviour
 
     private bool isUltimate;
     private Coroutine ultimateCoroutine;
+    
+    
 
     public enum MonsterState
     {
@@ -90,6 +93,8 @@ public class DefaultMonster : MonoBehaviour
     private void Start()
     {
         de = GetComponent<DefaultEnemyMovement>();
+        uc = playerTarget.GetComponent<UltimateController>();
+        
         inGameManager = GameObject.Find("InGameManager").GetComponent<InGameManager>();
         
         if (sphereRenderer != null)
@@ -295,6 +300,9 @@ public class DefaultMonster : MonoBehaviour
         de.agent.isStopped = true;
         
         inGameManager.UpdateMonsterText();
+        
+        uc?.OnMonsterDead(transform); // CrossHair 제거
+        Destroy(gameObject);
         
         StartCoroutine(FadeOutCoroutine());
         StartCoroutine(ShakeCoroutine());

@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
     public CapsuleCollider cc;
     private PlayerMovement pm;
     private Rigidbody rb;
+    private UltimateController ultimateController;
 
     [Header("Events")] //  Sync가 제대로 안맞는 문제가 존재.
     public UnityEvent OnPlayerHpChanged;
@@ -62,7 +63,9 @@ public class Player : MonoBehaviour
         //  Init
         curHp = desireHp = maxHp;
         curBoost = desireBoost = maxBoost;
-        curUltimate = desireUltimate = 0;
+        
+        //  For Debug -> 원래는 0으로 초기화
+        curUltimate = desireUltimate = maxUltimate;
         
         isGrace = false;
         
@@ -87,6 +90,8 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
+        ultimateController = GetComponent<UltimateController>();
+        
         OnPlayerHpChanged.Invoke();
         OnPlayerBoostChaged.Invoke();
         OnPlayerUltimateChanged.Invoke();
@@ -115,8 +120,19 @@ public class Player : MonoBehaviour
         if (curBoost <= 0 && boostLessCoroutine == null)
             NotEnoughBoost();
 
+        //  궁극기 중에는 Boost 감소 및 회복 X
+        if (ultimateController.IsUltimateActive)
+        {
+            if (boostCoroutine != null)
+            {
+                StopCoroutine(boostCoroutine);
+                boostCoroutine = null;
+            }
+            return;
+        }
+
         bool shouldCharge = pm.GetNonBoostTime() < 0;
-        
+
         if (isInit || (shouldCharge != isBoostCharge))
         {
             if (boostCoroutine != null)
@@ -130,6 +146,7 @@ public class Player : MonoBehaviour
 
         isInit = false;
     }
+
 
 
 
