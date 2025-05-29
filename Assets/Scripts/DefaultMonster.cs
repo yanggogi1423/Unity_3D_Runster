@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using MimicSpace;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Experimental.GlobalIllumination;
 using Random = UnityEngine.Random;
+using RenderSettings = UnityEngine.RenderSettings;
 
 public class DefaultMonster : MonoBehaviour
 {
@@ -49,8 +51,11 @@ public class DefaultMonster : MonoBehaviour
     [SerializeField] private Renderer sphereRenderer; // 인스펙터에서 할당
     private Material sphereMaterialInstance;
     private GameObject hitEffectPrefab;
+    // 필요시 override 할 수 있게 public
+    public Light directionalLight;
 
     private bool isUltimate;
+    private Coroutine ultimateCoroutine;
 
     public enum MonsterState
     {
@@ -71,8 +76,15 @@ public class DefaultMonster : MonoBehaviour
         isDead = false;
         curState = MonsterState.Patrol;
         playerTarget = GameObject.FindGameObjectWithTag("Player").transform;
+        
+        //  Directional Light Access
+        if (directionalLight == null)
+        {
+            directionalLight = RenderSettings.sun;
+        }
 
         isUltimate = false;
+        ultimateCoroutine = null;
     }
 
     private void Start()
@@ -186,6 +198,13 @@ public class DefaultMonster : MonoBehaviour
             lastAttackTime = Time.time;
             mimic.AttackWithLegsAtTarget(de.target.position, maxAttackLegs);
             de.target.GetComponent<Player>()?.GetDamage(attackPower);
+
+            if (isUltimate)
+            {
+                if(ultimateCoroutine != null) StopCoroutine(ultimateCoroutine);
+                
+                ultimateCoroutine = StartCoroutine(UltimateDarknessModeCoroutine());
+            }
         }
     }
 
@@ -362,12 +381,69 @@ public class DefaultMonster : MonoBehaviour
         Color newColor = Color.Lerp(Color.black, Color.red, healthRatio);
         sphereMaterialInstance.color = newColor;
     }
+    
+    //  Ultimate State
+    public void EnterUltimateDarknessMode()
+    {
+        RenderSettings.fog = true;
+        RenderSettings.fogColor = Color.black;
+        RenderSettings.fogMode = FogMode.ExponentialSquared;
+        RenderSettings.fogDensity = 0.25f;
 
+        if (directionalLight != null)
+        {
+            directionalLight.gameObject.SetActive(false); // 빛 끄기
+        }
+    }
+
+    private IEnumerator UltimateDarknessModeCoroutine()
+    {
+        EnterUltimateDarknessMode();
+
+        // 5초간 어두운 상태 유지
+        yield return new WaitForSeconds(3f);
+
+        // 2초간 fogDensity 점점 줄이기
+        float duration = 2f;
+        float elapsed = 0f;
+        float startDensity = RenderSettings.fogDensity;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            RenderSettings.fogDensity = Mathf.Lerp(startDensity, 0f, t);
+            yield return null;
+        }
+
+        // 완전히 사라진 후 Exit
+        ExitUltimateDarknessMode();
+        ultimateCoroutine = null;
+    }
+
+
+    public void ExitUltimateDarknessMode()
+    {
+        RenderSettings.fog = false;
+
+        if (directionalLight != null)
+        {
+            directionalLight.gameObject.SetActive(true); // 빛 다시 켜기
+        }
+    }
 
     private void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.CompareTag("Player"))
+        {
             other.gameObject.GetComponent<Player>().GetDamage(attackPower);
+
+            if (isUltimate)
+            {
+                if(ultimateCoroutine != null) StopCoroutine(ultimateCoroutine);
+                ultimateCoroutine = StartCoroutine(UltimateDarknessModeCoroutine());
+            }
+        }
     }
 
     private void OnDrawGizmosSelected()
