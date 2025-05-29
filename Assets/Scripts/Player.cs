@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     [SerializeField] public float maxBoost;
     [SerializeField] public float desireBoost;
     [SerializeField] public float curBoost;
+    [SerializeField] public bool allowBoostConsume;
     
     [SerializeField] public float maxUltimate;
     [SerializeField] public float desireUltimate;
@@ -80,6 +81,8 @@ public class Player : MonoBehaviour
 
         isHyper = false;
         rb = GetComponent<Rigidbody>();
+
+        allowBoostConsume = true;
     }
 
     private void Start()

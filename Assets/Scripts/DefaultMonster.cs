@@ -303,6 +303,8 @@ public class DefaultMonster : MonoBehaviour
     private IEnumerator FadeOutCoroutine()
     {
         float timer = 0f;
+        
+        float startDensity = RenderSettings.fogDensity;
 
         foreach (var rend in renderers)
             rend.material = new Material(rend.material);
@@ -318,9 +320,14 @@ public class DefaultMonster : MonoBehaviour
             float alpha = Mathf.Lerp(1f, 0f, timer / fadeDuration);
             SetAlpha(alpha);
             timer += Time.deltaTime;
+            
+            //  Fog
+            float t = timer / fadeDuration;
+            RenderSettings.fogDensity = Mathf.Lerp(startDensity, 0f, t);
             yield return null;
         }
 
+        ExitUltimateDarknessMode();
         SetAlpha(0f);
         Destroy(gameObject);
     }
