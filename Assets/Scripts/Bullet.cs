@@ -9,6 +9,8 @@ public class Bullet : MonoBehaviour
     void Start()
     {
         StartCoroutine(DestroyCoroutine());
+
+        AudioManager.Instance.PlaySfx(AudioManager.Sfx.PlayerFire);
     }
     
 

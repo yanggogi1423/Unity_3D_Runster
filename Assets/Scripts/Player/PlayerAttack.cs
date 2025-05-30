@@ -45,6 +45,8 @@ public class PlayerAttack : MonoBehaviour
     {
         if (Input.GetMouseButton(0) && fireTimer >= fireCooldown && pm.CheckShootable())
         {
+            if (pm.player.desireBoost < 2f) return;
+            
             fireTimer = 0f; // 쿨타임 리셋
 
             if (uc.IsUltimateActive)
