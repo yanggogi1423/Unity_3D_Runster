@@ -152,6 +152,8 @@ public class Climbing : MonoBehaviour
 
     private void ClimbJump()
     {
+        AudioManager.Instance.PlaySfx(AudioManager.Sfx.PlayerJump);
+        
         exitingWall = true;
         exitWallTimer = exitWallTime;
 

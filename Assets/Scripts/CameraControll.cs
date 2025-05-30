@@ -87,6 +87,8 @@ public class CameraControll : MonoBehaviour
             cursorVisibility = !cursorVisibility;
             pm.player.isPause = cursorVisibility;
             
+            AudioManager.Instance.StopAllLoopingSfx();
+            
             SetCursorVisible();
         }
     }

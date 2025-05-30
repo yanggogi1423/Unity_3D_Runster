@@ -31,8 +31,11 @@ public class Bullet : MonoBehaviour
 
         if (other.gameObject.CompareTag("Monster"))
         {
-            if(other.gameObject != null)
+            if (other.gameObject != null)
+            {
                 other.gameObject.GetComponent<DefaultMonster>().GetDamage(attackPower);
+            }
+                
             Destroy(gameObject);
         }
         else

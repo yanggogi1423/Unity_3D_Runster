@@ -257,6 +257,7 @@ public class WallRunning : MonoBehaviour
     private void WallJump()
     {
         Debug.Log("Wall Jump!");
+        AudioManager.Instance.PlaySfx(AudioManager.Sfx.PlayerJump);
         
         //  Jump Animation
         pm.anim.SetTrigger("jumping");

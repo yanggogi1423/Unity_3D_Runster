@@ -117,7 +117,6 @@ public class AudioManager : Singleton<AudioManager>
     // SFX 재생 (폴링 방식)
     public string PlaySfx(Sfx sfx)
     {
-        
         AudioSource source = _sfxObject.AddComponent<AudioSource>();
         source.volume = sfxVolume;
         source.clip = sfxClips[(int)sfx];
@@ -125,7 +124,7 @@ public class AudioManager : Singleton<AudioManager>
         source.dopplerLevel = 0.0f;
         source.reverbZoneMix = 0.0f;
         
-        if (sfx == Sfx.MonsterDefault) source.volume /= 2f;
+        //  if (sfx == Sfx.MonsterDefault) source.volume /= 2f;
         
         source.Play();
         // Debug.Log(_activeSfx.Count);
@@ -134,7 +133,8 @@ public class AudioManager : Singleton<AudioManager>
         StartCoroutine(RemoveSfxWhenFinished(id, source));
         return id;
     }
-    public string PlaySfx(Sfx sfx,float distance, float searchDistance)
+    
+    public string PlaySfx(Sfx sfx, float distance, float searchDistance)
     {
         AudioSource source = _sfxObject.AddComponent<AudioSource>();
         source.volume = sfxVolume-(sfxVolume* (distance / searchDistance));
@@ -152,6 +152,54 @@ public class AudioManager : Singleton<AudioManager>
         StartCoroutine(RemoveSfxWhenFinished(id, source));
         return id;
     }
+    
+    //  루프용 사운드 Dictionary (한 종류의 loop당 하나만 재생)
+    private Dictionary<Sfx, AudioSource> _loopingSfx = new Dictionary<Sfx, AudioSource>();
+    
+    public void PlaySfxLoop(Sfx sfx)
+    {
+        // 현재 루프 중인 같은 SFX면 재생하지 않음
+        if (_loopingSfx.ContainsKey(sfx) && _loopingSfx[sfx].isPlaying)
+            return;
+
+        // 기존 루프 SFX 전부 정지
+        StopAllLoopingSfx();
+
+        // 새 오디오소스 생성 및 설정
+        AudioSource source = _sfxObject.AddComponent<AudioSource>();
+        source.volume = sfxVolume;
+        source.clip = sfxClips[(int)sfx];
+        source.loop = true;
+        source.outputAudioMixerGroup = sfxMixerGroup;
+        source.dopplerLevel = 0.0f;
+        source.reverbZoneMix = 0.0f;
+        source.Play();
+
+        _loopingSfx[sfx] = source;
+    }
+
+    
+    public void StopSfxLoop(Sfx sfx)
+    {
+        if (_loopingSfx.ContainsKey(sfx))
+        {
+            _loopingSfx[sfx].Stop();
+            Destroy(_loopingSfx[sfx]); // AudioSource 제거
+            _loopingSfx.Remove(sfx);
+        }
+    }
+
+    public void StopAllLoopingSfx()
+    {
+        foreach (var kvp in _loopingSfx)
+        {
+            kvp.Value.Stop();
+            Destroy(kvp.Value);
+        }
+        _loopingSfx.Clear();
+    }
+
+    
     public void ChangeVolume(string id, float distance, float searchDistance)
     {
         if (_activeSfx.ContainsKey(id))

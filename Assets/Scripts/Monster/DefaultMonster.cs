@@ -70,7 +70,9 @@ public class DefaultMonster : MonoBehaviour
 
     public GameObject cellItem;
     
-
+    [Header("Audio")]
+    private Coroutine sfxCoroutine;
+    
     public enum MonsterState
     {
         Trace,
@@ -127,6 +129,8 @@ public class DefaultMonster : MonoBehaviour
         hitEffectPrefab = Resources.Load<GameObject>("vfx_Explosion_01");
         
         StartSpawnEffect();
+        
+        sfxCoroutine = StartCoroutine(PlaySfxLoop());
     }
 
     private void Update()
@@ -186,6 +190,8 @@ public class DefaultMonster : MonoBehaviour
 
     private void UltimateMonster()
     {
+        AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterUltimate);
+        
         ultimateMonster.SetActive(true);
         de.speed *= 3.5f;
         de.velocityLerpCoef *= 2f;
@@ -294,6 +300,7 @@ public class DefaultMonster : MonoBehaviour
 
         if (hitEffectPrefab != null)
         {
+            AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterHit);
             GameObject fx = Instantiate(hitEffectPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
             Destroy(fx, 1.5f); // 일정 시간 후 자동 제거
         }
@@ -325,6 +332,8 @@ public class DefaultMonster : MonoBehaviour
         
         //  Collider 제거
         GetComponent<SphereCollider>().enabled = false;
+        
+        AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterDie);
         
         StartCoroutine(FadeOutCoroutine());
         StartCoroutine(ShakeCoroutine());
@@ -427,6 +436,8 @@ public class DefaultMonster : MonoBehaviour
     //  Ultimate State
     public void EnterUltimateDarknessMode()
     {
+        AudioManager.Instance.PlaySfx(AudioManager.Sfx.Darkness);
+        
         RenderSettings.fog = true;
         RenderSettings.fogColor = Color.black;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
@@ -510,6 +521,20 @@ public class DefaultMonster : MonoBehaviour
                 ultimateCoroutine = StartCoroutine(UltimateDarknessModeCoroutine());
             }
 
+        }
+    }
+    
+
+    private IEnumerator PlaySfxLoop()
+    {
+        while (true)
+        {
+            float waitTime = Random.Range(5f, 10f); // 5~10초 사이 랜덤
+            yield return new WaitForSeconds(waitTime);
+
+            float dist = Vector3.Distance(transform.position, playerTarget.transform.position);
+            
+            AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterDefault, dist,50);
         }
     }
 

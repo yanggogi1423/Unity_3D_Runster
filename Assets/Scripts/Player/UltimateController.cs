@@ -48,6 +48,8 @@ public class UltimateController : MonoBehaviour
 
     private IEnumerator UltimateRoutine()
     {
+        AudioManager.Instance.PlaySfx(AudioManager.Sfx.PlayerUltimate);
+        
         isUltimateActive = true;
 
         // Boost 최대치 고정

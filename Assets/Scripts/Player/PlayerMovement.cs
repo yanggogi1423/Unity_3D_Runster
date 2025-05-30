@@ -225,27 +225,35 @@ public class PlayerMovement : MonoBehaviour
         switch (curState)
         {
             case MovementState.Idle:
+                AudioManager.Instance.StopAllLoopingSfx();
                 anim.SetBool("isWalk", false);
                 anim.SetBool("isSprint", false);
                 anim.SetBool("isIdle", true);
                 break;
             case MovementState.Walk:
+                AudioManager.Instance.PlaySfxLoop(AudioManager.Sfx.PlayerWalk);
                 anim.SetBool("isWalk", true);
                 anim.SetBool("isSprint", false);
                 break;
             case MovementState.Sprinting:
+                AudioManager.Instance.PlaySfxLoop(AudioManager.Sfx.PlayerRunning);
                 anim.SetBool("isSprint", true);
                 break;
             case MovementState.WallRunning:
+                AudioManager.Instance.PlaySfxLoop(AudioManager.Sfx.PlayerRunning);
                 break;
             case MovementState.Climbing:
+                AudioManager.Instance.StopAllLoopingSfx();
                 break;
             case MovementState.Crouching:
+                AudioManager.Instance.StopAllLoopingSfx();
                 break;
             case MovementState.Sliding:
+                AudioManager.Instance.StopAllLoopingSfx();
                 anim.SetBool("isSliding", true);
                 break;
             case MovementState.Air:
+                AudioManager.Instance.StopAllLoopingSfx();
                 break;
         }
     }
@@ -492,6 +500,8 @@ public class PlayerMovement : MonoBehaviour
     private void Jump()
     {
         Debug.Log("Jump!");
+
+        AudioManager.Instance.PlaySfx(AudioManager.Sfx.PlayerJump);
         
         anim.SetTrigger("jumping");
 
