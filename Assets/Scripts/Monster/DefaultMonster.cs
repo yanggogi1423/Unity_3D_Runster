@@ -373,6 +373,8 @@ public class DefaultMonster : MonoBehaviour
         
         GetRandomItem();
         
+        AudioManager.Instance.StopSfx(AudioManager.Sfx.MonsterDefault.ToString());
+        
         Destroy(gameObject);
     }
 
@@ -534,7 +536,7 @@ public class DefaultMonster : MonoBehaviour
 
             float dist = Vector3.Distance(transform.position, playerTarget.transform.position);
             
-            AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterDefault, dist,50);
+            AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterDefault, dist,15);
         }
     }
 

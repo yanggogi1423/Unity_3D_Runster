@@ -4,7 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using Button = UnityEngine.UIElements.Button;
 
 public class UIManager : MonoBehaviour
 {
@@ -42,6 +41,13 @@ public class UIManager : MonoBehaviour
     public Button exitMenuButton;
     public bool topMenuVisible;
 
+    [Header("TopMenu Buttons")] 
+    public Button mainButton;
+
+    [Header("Text")] 
+    public GameObject operatingKeyText;
+    public GameObject playText;
+
     private void Awake()
     {
         player = playerContainer.GetComponent<Player>();
@@ -57,6 +63,8 @@ public class UIManager : MonoBehaviour
         ultimateCoroutine = null;
 
         topMenuVisible = true;
+        
+        mainButton.onClick.AddListener(SceneController.Instance.LoadMainScene);
     }
 
     private void Update()
@@ -167,6 +175,9 @@ public class UIManager : MonoBehaviour
     public void TopMenuToggle()
     {
         topMenuVisible = !topMenuVisible;
+        
+        operatingKeyText.SetActive(topMenuVisible);
+        playText.SetActive(topMenuVisible);
         
         topAnim.SetBool("visible", topMenuVisible);
     }

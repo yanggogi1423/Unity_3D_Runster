@@ -79,6 +79,72 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Boost Time")] 
     public float nonBoostTime;
+
+    [Header("For UI AND CINEMACHINE")] 
+    [SerializeField] private bool isUI;
+
+    #region Cinemachine UI
+    
+    private Coroutine uiShowcaseCoroutine;
+
+    public void StartUIShowcase()
+    {
+        if (uiShowcaseCoroutine != null) StopCoroutine(uiShowcaseCoroutine);
+        uiShowcaseCoroutine = StartCoroutine(UIShowcaseRoutine());
+    }
+
+    private IEnumerator UIShowcaseRoutine()
+    {
+        isUI = true;
+
+        // 1. 달리기 시작
+        curState = MovementState.Sprinting;
+        moveSpeed = sprintSpeed;
+        anim.SetBool("isSprint", true);
+
+        // 방향 지정 (정면으로)
+        horizontalInput = 0;
+        verticalInput = 1;
+
+        yield return new WaitForSeconds(5f);
+
+        // 2. 점프
+        AudioManager.Instance.StopAllLoopingSfx();
+        
+        Jump();
+        readyToJump = false;
+        
+        anim.SetBool("isSprint", false);
+
+        yield return new WaitForSeconds(1f); // 공중 체공 시간 고려
+
+        // 3. 착지 후 슬라이딩 시작
+        //  while (!isGrounded) yield return null; // 착지 대기
+        
+        sliding = true;
+        curState = MovementState.Sliding;
+        anim.SetBool("isSliding", true);
+        
+
+        yield return new WaitForSeconds(1.5f); // 슬라이드 지속 시간
+
+        // 연출 종료
+        anim.SetBool("isSliding", false);
+        
+        curState = MovementState.Idle;
+        
+        sliding = false;
+        
+        verticalInput = 0;
+        horizontalInput = 0;
+        
+        rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+    }
+    
+    //  TODO : INTRO 끝나고 나서 나올 자연스러운 애니메이션 구현
+    
+    #endregion
+    
     
     //  For State Machine
     public enum MovementState
@@ -117,10 +183,23 @@ public class PlayerMovement : MonoBehaviour
         startYScale = transform.localScale.y;
         
         lastState = MovementState.Idle;
+
+        if (isUI)
+        {
+            StartUIShowcase();
+        }
     }
 
     private void Update()
     {
+        if (isUI)
+        {
+            SpeedControl();
+            StateHandler();
+            return;
+        }
+        
+        
         //  Player Height의 절반 + 0.2(offset) -> 점프가 끝난 후에 바닥 체크
         if (readyToJump)
         {
@@ -143,15 +222,18 @@ public class PlayerMovement : MonoBehaviour
         //  Debug.Log("Cur Velocity : " + rb.linearVelocity.magnitude);
     }
 
+
     private void FixedUpdate()
     {
+        //  UI 상태에서는 MovePlayer만 허용
+        if (isUI)
+        {
+            MovePlayer(); // 자동 이동 허용
+            return;
+        }
+
         MovePlayer();
-        
         CheckNonBoostTime();
-        
-        // Debug.Log("Non Boost Time : " + nonBoostTime);
-        
-        //  For Debug
         speedText.SetText(rb.linearVelocity.magnitude + "\n" + curState);
     }
 
@@ -219,6 +301,31 @@ public class PlayerMovement : MonoBehaviour
             transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
         }
     }
+    
+    private AudioManager.Sfx? currentLoopSfx = null;
+
+    private void UpdateMovementSfx()
+    {
+        AudioManager.Sfx? newSfx = curState switch
+        {
+            MovementState.Walk => AudioManager.Sfx.PlayerWalk,
+            MovementState.Sprinting => AudioManager.Sfx.PlayerRunning,
+            MovementState.WallRunning => AudioManager.Sfx.PlayerWallRunning,
+            _ => null
+        };
+
+        if (newSfx != currentLoopSfx)
+        {
+            if (newSfx != null)
+                AudioManager.Instance.PlaySfxLoop(newSfx.Value);
+            else
+                AudioManager.Instance.StopAllLoopingSfx();
+
+            currentLoopSfx = newSfx;
+        }
+    }
+
+
 
     private void StateMachine()
     {
@@ -231,16 +338,16 @@ public class PlayerMovement : MonoBehaviour
                 anim.SetBool("isIdle", true);
                 break;
             case MovementState.Walk:
-                AudioManager.Instance.PlaySfxLoop(AudioManager.Sfx.PlayerWalk);
+                
                 anim.SetBool("isWalk", true);
                 anim.SetBool("isSprint", false);
                 break;
             case MovementState.Sprinting:
-                AudioManager.Instance.PlaySfxLoop(AudioManager.Sfx.PlayerRunning);
+                
                 anim.SetBool("isSprint", true);
                 break;
             case MovementState.WallRunning:
-                AudioManager.Instance.PlaySfxLoop(AudioManager.Sfx.PlayerRunning);
+                
                 break;
             case MovementState.Climbing:
                 AudioManager.Instance.StopAllLoopingSfx();
@@ -300,82 +407,87 @@ public class PlayerMovement : MonoBehaviour
 
     private void StateHandler()
     {
-        if(curState != MovementState.Sprinting && cam.isFovModified && !wallRunning)
-            cam.DoFov(0);   //  Sprint Fov
-        
-        //  Climbing
-        if (climbing)
+        if (!isUI)
         {
-            curState = MovementState.Climbing;
-            desiredMoveSpeed = climbSpeed;
-        }
-        //  Idle
-        else if (rb.linearVelocity.magnitude < 0.2f && isGrounded && readyToJump)
-        {
-            curState = MovementState.Idle;
-            desiredMoveSpeed = walkSpeed;
-        }
-        //  WallRunning
-        else if (wallRunning)
-        {
-            curState = MovementState.WallRunning;
-            desiredMoveSpeed = wallRunSpeed;
-        }
-        //  Sliding
-        else if (sliding)
-        {
-            curState = MovementState.Sliding;
-
-            if (OnSlope() && rb.linearVelocity.y < 0.1f)
+            if(curState != MovementState.Sprinting && cam.isFovModified && !wallRunning)
+                cam.DoFov(0);   //  Sprint Fov
+            
+            //  Climbing
+            if (climbing)
             {
-                desiredMoveSpeed = slideSpeed;
+                curState = MovementState.Climbing;
+                desiredMoveSpeed = climbSpeed;
+            }
+            //  Idle
+            else if (rb.linearVelocity.magnitude < 0.2f && isGrounded && readyToJump)
+            {
+                curState = MovementState.Idle;
+                desiredMoveSpeed = walkSpeed;
+            }
+            //  WallRunning
+            else if (wallRunning)
+            {
+                curState = MovementState.WallRunning;
+                desiredMoveSpeed = wallRunSpeed;
+            }
+            //  Sliding
+            else if (sliding)
+            {
+                curState = MovementState.Sliding;
+
+                if (OnSlope() && rb.linearVelocity.y < 0.1f)
+                {
+                    desiredMoveSpeed = slideSpeed;
+                }
+                else
+                {
+                    desiredMoveSpeed = sprintSpeed;
+                }
+            }
+
+            //  Crouching
+            else if (Input.GetKey(crouchKey))
+            {
+                curState = MovementState.Crouching;
+                desiredMoveSpeed = crouchSpeed;
+            }
+            //  Sprinting
+            else if (isGrounded && Input.GetKey(sprintKey))
+            {
+                curState = MovementState.Sprinting;
+                cam.DoFov(1);
+                desiredMoveSpeed = sprintSpeed;
+            }
+            else if (isGrounded)    //  Walk
+            {
+                curState = MovementState.Walk;
+                desiredMoveSpeed = walkSpeed;
+            }
+            else    //  Air
+            {
+                curState = MovementState.Air;
+            }
+        
+            //  if DesiredMoveSpeed Change Drastically -> 차이가 8 이상일 때 천천히 줄어듦
+            if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 8f && moveSpeed != 0)
+            {
+                StopAllCoroutines();
+                StartCoroutine(LerpMoveSpeedCoroutine());
             }
             else
             {
-                desiredMoveSpeed = sprintSpeed;
+                moveSpeed = desiredMoveSpeed;
             }
-        }
 
-        //  Crouching
-        else if (Input.GetKey(crouchKey))
-        {
-            curState = MovementState.Crouching;
-            desiredMoveSpeed = crouchSpeed;
-        }
-        //  Sprinting
-        else if (isGrounded && Input.GetKey(sprintKey))
-        {
-            curState = MovementState.Sprinting;
-            cam.DoFov(1);
-            desiredMoveSpeed = sprintSpeed;
-        }
-        else if (isGrounded)    //  Walk
-        {
-            curState = MovementState.Walk;
-            desiredMoveSpeed = walkSpeed;
-        }
-        else    //  Air
-        {
-            curState = MovementState.Air;
+            lastDesiredMoveSpeed = desiredMoveSpeed;
         }
         
-        //  if DesiredMoveSpeed Change Drastically -> 차이가 8 이상일 때 천천히 줄어듦
-        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 8f && moveSpeed != 0)
-        {
-            StopAllCoroutines();
-            StartCoroutine(LerpMoveSpeedCoroutine());
-        }
-        else
-        {
-            moveSpeed = desiredMoveSpeed;
-        }
-
-        lastDesiredMoveSpeed = desiredMoveSpeed;
         
         //  Call State Machine
         if (curState != lastState)
         {
             StateMachine();
+            UpdateMovementSfx();
         }
 
         lastState = curState;

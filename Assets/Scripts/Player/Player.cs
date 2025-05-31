@@ -22,6 +22,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float graceTime = 3f;  //  무적 시간
     [SerializeField] private bool isGrace;
 
+    [SerializeField] public bool isDead;
+
     [Header("References")]
     public CapsuleCollider cc;
     private PlayerMovement pm;
@@ -61,6 +63,7 @@ public class Player : MonoBehaviour
         pm = GetComponent<PlayerMovement>();
         
         //  Init
+        isDead = false;
         curHp = desireHp = maxHp;
         curBoost = desireBoost = maxBoost;
         
@@ -76,7 +79,7 @@ public class Player : MonoBehaviour
         
         killedEnemies = 0;
 
-        ultimateOffset = 1f;
+        ultimateOffset = 5f;
         isKillTime = false;
         
         boostCoroutine = null;
@@ -147,7 +150,6 @@ public class Player : MonoBehaviour
         isInit = false;
     }
 
-
     
     private void NotEnoughBoost()
     {
@@ -214,7 +216,7 @@ public class Player : MonoBehaviour
         else if (killTimer <= 0f && isKillTime)
         {
             isKillTime = false;
-            ultimateOffset = 1f;
+            ultimateOffset = 5f;
             
             killTimer = 0f;
         }
@@ -238,7 +240,7 @@ public class Player : MonoBehaviour
         
         OnPlayerHpChanged.Invoke();
 
-        if (curHp <= 0f)
+        if (curHp <= 0f && !isDead)
         {
             Debug.Log("Game Over - Player Die");
             Die();
@@ -259,7 +261,19 @@ public class Player : MonoBehaviour
 
     private void Die()
     {
-        Destroy(gameObject, 3f);
+        pm.anim.SetTrigger("die");
+        isDead = true;
+
+        StartCoroutine(DieCoroutine());
+    }
+
+    private IEnumerator DieCoroutine()
+    {
+        yield return new WaitForSeconds(5f);
+        GameManager.Instance.playerDie = true;
+        AudioManager.Instance.StopAllLoopingSfx();
+        AudioManager.Instance.StopAllSfx();
+        SceneController.Instance.LoadEndingScene();
     }
 
     public bool GetIsGrace()

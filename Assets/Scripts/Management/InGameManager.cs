@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -36,6 +37,18 @@ public class InGameManager : MonoBehaviour
     {
         curMonster--;
         monsterText.SetText(curMonster + " / " + maxMonster);
+
+        if (curMonster == 0)
+        {
+            GameManager.Instance.isClear = true;
+            StartCoroutine(ClearCoroutine());
+        }
+    }
+
+    private IEnumerator ClearCoroutine()
+    {
+        yield return new WaitForSeconds(5.5f);
+        SceneController.Instance.LoadEndingScene();
     }
 
     private void SetTime()

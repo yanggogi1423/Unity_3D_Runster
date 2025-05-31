@@ -22,6 +22,8 @@ public class CameraControll : MonoBehaviour
     [Header("Cameras")] 
     public GameObject firstCam;
     public GameObject thirdCam;
+    public GameObject clearCam;
+    public GameObject dieCam;
 
     [Header("UI")] 
     public UIManager uiManager;
@@ -62,6 +64,21 @@ public class CameraControll : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.Instance.isClear)
+        {
+            firstCam.SetActive(false);
+            thirdCam.SetActive(false);
+            clearCam.SetActive(true);
+            return;
+        }
+
+        if (pm.GetComponent<Player>().isDead)
+        {
+            firstCam.SetActive(false);
+            thirdCam.SetActive(false);
+            dieCam.SetActive(true);
+        }
+        
         //  Mouse Input
         float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX;
         float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensY;
