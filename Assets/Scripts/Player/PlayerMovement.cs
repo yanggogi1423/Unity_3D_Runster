@@ -241,7 +241,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (player.isPause) return;
         
-        if (curState == MovementState.Walk || curState == MovementState.Idle || curState == MovementState.Air)
+        if (curState == MovementState.Walk || curState == MovementState.Idle || (curState == MovementState.Air && readyToJump))
         {
             if(nonBoostTime < Time.deltaTime * (-60f)) nonBoostTime = Time.deltaTime * (-60f);
             nonBoostTime += Time.deltaTime;
@@ -469,15 +469,10 @@ public class PlayerMovement : MonoBehaviour
             }
         
             //  if DesiredMoveSpeed Change Drastically -> 차이가 8 이상일 때 천천히 줄어듦
-            if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 8f && moveSpeed != 0)
-            {
-                StopAllCoroutines();
+            if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 8f)
                 StartCoroutine(LerpMoveSpeedCoroutine());
-            }
             else
-            {
                 moveSpeed = desiredMoveSpeed;
-            }
 
             lastDesiredMoveSpeed = desiredMoveSpeed;
         }
@@ -526,6 +521,72 @@ public class PlayerMovement : MonoBehaviour
         moveSpeed = desiredMoveSpeed;
     }
     
+    // 기존 코드에서 SpeedControl 부분은 제거하고, 다음과 같이 MovePlayer만 수정해주세요.
+//
+// private void MovePlayer()
+// {
+//     // 1) 만약 벽에서 떨어지는 상태라면 이동 중지
+//     if (cb.exitingWall)
+//         return;
+//         
+//     // 2) 이동 방향(카메라 기준으로)
+//     Vector3 flatForward = new Vector3(orientation.forward.x, 0f, orientation.forward.z).normalized;
+//     Vector3 flatRight   = new Vector3(orientation.right.x,   0f, orientation.right.z).normalized;
+//     moveDirection = flatForward * verticalInput + flatRight * horizontalInput;
+//
+//     // 3) 현재 지면 여부, 경사 여부 갱신 (Update에서 이미 했지만, 안전하게 여기서도 체크)
+//     isOnSlope  = OnSlope();
+//     isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundLayer)
+//                || Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, wallLayer);
+//
+//     // 4) 목표 수평 속도 계산
+//     Vector3 targetFlatVel;
+//     if (isOnSlope && !exitingSlope)
+//     {
+//         // 경사면 위(Upward 방향 속도를 막기 위한 y=끼워 넣어주는 로직은 아래에 추가)
+//         Vector3 slopeDir = GetSlopeMoveDirection(moveDirection).normalized;
+//         targetFlatVel = slopeDir * moveSpeed;
+//     }
+//     else if (isGrounded)
+//     {
+//         // 지면 위
+//         targetFlatVel = moveDirection.normalized * moveSpeed;
+//     }
+//     else
+//     {
+//         // 공중
+//         targetFlatVel = moveDirection.normalized * moveSpeed * airMultiplier;
+//     }
+//
+//     // 5) 현재 수평 속도
+//     Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+//
+//     // 6) 수평 속도를 목표 속도로 부드럽게 MoveTowards (한 프레임당 최대 변경량 = moveSpeed * Time.fixedDeltaTime)
+//     float maxDelta = moveSpeed * Time.fixedDeltaTime;
+//     Vector3 newFlat = Vector3.MoveTowards(flatVel, targetFlatVel, maxDelta);
+//
+//     // 7) 최종 Rigidbody.velocity 세팅 (y 속도는 기존 유지)
+//     rb.linearVelocity = new Vector3(newFlat.x, rb.linearVelocity.y, newFlat.z);
+//
+//     // 8) 경사면에서 위로 솟는 속도를 잡아주는 downward force
+//     if (isOnSlope && !exitingSlope && rb.linearVelocity.y > 0f)
+//     {
+//         rb.AddForce(Vector3.down * 80f, ForceMode.Force);
+//     }
+//
+//     // 9) 경사 위일 때 중력 끄기, 아닐 때 중력 켜기 (기존 로직 그대로)
+//     if (!wallRunning)
+//         rb.useGravity = !isOnSlope;
+//
+//     // 10) 슬라이딩 시 “이동 방향이 없으면 수평 속도 0” 처리 (기존 MovePlayer 로직 호환)
+//     if (isOnSlope && !exitingSlope && horizontalInput == 0 && verticalInput == 0 && !sliding)
+//     {
+//         rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+//     }
+// }
+
+    
+    
 
     //  NOTE : Run in Fixed Update
     private void MovePlayer()
@@ -559,6 +620,7 @@ public class PlayerMovement : MonoBehaviour
         }
         
         else if(isGrounded)  //  땅에 닿았을때 평면 이동
+            // rb.AddForce(moveDirection.normalized * moveSpeed * Time.fixedDeltaTime, ForceMode.VelocityChange);
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
         else if(!isGrounded)    //  공기 저항
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
@@ -590,6 +652,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
     
+    
     /*
     private void Jump()
     {
@@ -611,7 +674,6 @@ public class PlayerMovement : MonoBehaviour
     
     private void Jump()
     {
-        Debug.Log("Jump!");
 
         AudioManager.Instance.PlaySfx(AudioManager.Sfx.PlayerJump);
         

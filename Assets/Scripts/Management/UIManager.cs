@@ -136,7 +136,7 @@ public class UIManager : MonoBehaviour
                     playerUltimate.SetText(Mathf.CeilToInt((player.curUltimate / player.maxUltimate) * 100f) + "%");
                     if (Mathf.Abs(player.curUltimate - player.desireUltimate) < 0.01f)
                     {
-                        Debug.Log(((player.curUltimate / player.maxUltimate) * 100) + "%");
+
                         player.curUltimate = player.desireUltimate;
                         ultimateCoroutine = null;
                         yield break;
@@ -155,9 +155,7 @@ public class UIManager : MonoBehaviour
         climbing.fillAmount = climb.GetClimbTimeRatio();
         sliding.fillAmount = slide.GetSlideTimeRatio();
 
-        Debug.Log("Wall Running : " + wr.GetWallRunTimeRatio() +
-                  "\nClimbing : " + climb.GetClimbTimeRatio() +
-                  "\nSliding : " + slide.GetSlideTimeRatio());
+
         
         if (player.GetIsGrace() && !isModifiedGrace)
         {

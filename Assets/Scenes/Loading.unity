@@ -355,7 +355,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: "[\uC870\uC791\uBC95]\n\uC774\uB3D9 | WASD\t\t\uACF5\uACA9 | \uC88C\uD074\uB9AD\n\uB2EC\uB9AC\uAE30
     | Shift\t\t\uAD81\uADF9\uAE30 | R\n\uC2AC\uB77C\uC774\uB529 | Ctrl\t\t\uC2DC\uC810\uBCC0\uD658
-    | F5\n\uC810\uD504 | Space\t\t\uBA54\uB274 | ESC\n\n[\uD2B9\uC218 \uC870\uC791\uBC95]\n\uC0C1\uD5A5
+    | T\n\uC810\uD504 | Space\t\t\uBA54\uB274 | ESC\n\n[\uD2B9\uC218 \uC870\uC791\uBC95]\n\uC0C1\uD5A5
     \uBCBD\uD0C0\uAE30 | Shift\n\uD558\uD5A5 \uBCBD\uD0C0\uAE30 | Ctrl\n\uBCBD \uC624\uB974\uAE30
     | Space\n\n"
   m_isRightToLeft: 0
@@ -930,7 +930,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0.0015258789, y: -0.0030517578}
-  m_SizeDelta: {x: 1920, y: 1080}
+  m_SizeDelta: {x: 3000, y: 2000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1121343239
 MonoBehaviour:
@@ -1218,7 +1218,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0

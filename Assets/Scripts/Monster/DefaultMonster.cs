@@ -72,6 +72,8 @@ public class DefaultMonster : MonoBehaviour
     
     [Header("Audio")]
     private Coroutine sfxCoroutine;
+
+    private float distToPlayer;
     
     public enum MonsterState
     {
@@ -82,6 +84,14 @@ public class DefaultMonster : MonoBehaviour
     }
 
     public MonsterState curState;
+
+    private void OnEnable()
+    {
+        Awake();
+        Start();
+        
+        GetComponent<SphereCollider>().enabled = true;
+    }
 
     private void Awake()
     {
@@ -109,11 +119,17 @@ public class DefaultMonster : MonoBehaviour
 
         isUltimate = false;
         ultimateCoroutine = null;
+        
+        de = GetComponent<DefaultEnemyMovement>();
+        
+        de.agent.speed = 9.5f;
+
+        traceDist = 40f;
     }
 
     private void Start()
     {
-        de = GetComponent<DefaultEnemyMovement>();
+        
         uc = playerTarget.GetComponent<UltimateController>();
         
         inGameManager = GameObject.Find("InGameManager").GetComponent<InGameManager>();
@@ -129,14 +145,12 @@ public class DefaultMonster : MonoBehaviour
         hitEffectPrefab = Resources.Load<GameObject>("vfx_Explosion_01");
         
         StartSpawnEffect();
-        
-        sfxCoroutine = StartCoroutine(PlaySfxLoop());
     }
 
     private void Update()
     {
         if (isDead || isSpawning) return;
-
+        
         CheckState();
 
         switch (curState)
@@ -153,7 +167,16 @@ public class DefaultMonster : MonoBehaviour
                 de.agent.isStopped = true;
                 break;
         }
-        
+    }
+
+    private void DefaultSoundEffect()
+    {
+        distToPlayer = Vector3.Distance(transform.position, playerTarget.position);
+
+        if (distToPlayer <= traceDist)
+        {
+            AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterDefault, distToPlayer, traceDist);
+        }
     }
 
     public void CheckState()
@@ -165,6 +188,8 @@ public class DefaultMonster : MonoBehaviour
             isUltimate = true;
             //  attackDist *= 2f;
             traceDist *= 15f;
+
+            de.agent.speed = 11f;
 
             UltimateMonster();
         }
@@ -336,7 +361,7 @@ public class DefaultMonster : MonoBehaviour
         AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterDie);
         
         StartCoroutine(FadeOutCoroutine());
-        StartCoroutine(ShakeCoroutine());
+        // StartCoroutine(ShakeCoroutine());
     }
 
     private IEnumerator FadeOutCoroutine()
@@ -344,6 +369,7 @@ public class DefaultMonster : MonoBehaviour
         float timer = 0f;
         float startDensity = RenderSettings.fogDensity;
         
+        GetRandomItem();
 
         while (timer < fadeDuration)
         {
@@ -352,13 +378,15 @@ public class DefaultMonster : MonoBehaviour
             float alpha = Mathf.Lerp(1f, 0f, t);
             SetAlpha(alpha);
 
-            RenderSettings.fogDensity = Mathf.Lerp(startDensity, 0f, t);
-
-            if (skyboxInstance != null && skyboxInstance.HasProperty("_Exposure"))
+            if (startDensity != 0f)
             {
-                skyboxInstance.SetFloat("_Exposure", Mathf.Lerp(0.2f, 1f, t)); // 1f = 원래 밝기
+                RenderSettings.fogDensity = Mathf.Lerp(startDensity, 0f, t);
+                
+                if (skyboxInstance != null && skyboxInstance.HasProperty("_Exposure"))
+                {
+                    skyboxInstance.SetFloat("_Exposure", Mathf.Lerp(0.2f, 1f, t)); // 1f = 원래 밝기
+                }
             }
-
 
             timer += Time.deltaTime;
             yield return null;
@@ -370,12 +398,11 @@ public class DefaultMonster : MonoBehaviour
             directionalLight.gameObject.SetActive(true);
 
         SetAlpha(0f);
+        //  For Object Pooling
         
-        GetRandomItem();
+        gameObject.SetActive(false);
         
-        AudioManager.Instance.StopSfx(AudioManager.Sfx.MonsterDefault.ToString());
-        
-        Destroy(gameObject);
+        // Destroy(gameObject);
     }
 
     private void SetAlpha(float alpha)
@@ -401,30 +428,30 @@ public class DefaultMonster : MonoBehaviour
         }
     }
 
-    private IEnumerator ShakeCoroutine()
-    {
-        float shakeDuration = fadeDuration;
-        float elapsed = 0f;
-        Quaternion originalRot = transform.rotation;
-
-        while (elapsed < shakeDuration)
-        {
-            elapsed += Time.deltaTime;
-            float progress = elapsed / shakeDuration;
-            float damper = 1f - progress;
-
-            float yAngle = Mathf.PerlinNoise(Time.time * 10f, 0f) * 10f - 5f;
-            float zAngle = Mathf.Sin(elapsed * 25f) * 5f;
-
-            yAngle *= damper;
-            zAngle *= damper;
-
-            transform.rotation = originalRot * Quaternion.Euler(0f + yAngle, 0f, zAngle);
-            yield return null;
-        }
-
-        transform.rotation = originalRot;
-    }
+    // private IEnumerator ShakeCoroutine()
+    // {
+    //     float shakeDuration = fadeDuration;
+    //     float elapsed = 0f;
+    //     Quaternion originalRot = transform.rotation;
+    //
+    //     while (elapsed < shakeDuration)
+    //     {
+    //         elapsed += Time.deltaTime;
+    //         float progress = elapsed / shakeDuration;
+    //         float damper = 1f - progress;
+    //
+    //         float yAngle = Mathf.PerlinNoise(Time.time * 10f, 0f) * 10f - 5f;
+    //         float zAngle = Mathf.Sin(elapsed * 25f) * 5f;
+    //
+    //         yAngle *= damper;
+    //         zAngle *= damper;
+    //
+    //         transform.rotation = originalRot * Quaternion.Euler(0f + yAngle, 0f, zAngle);
+    //         yield return null;
+    //     }
+    //
+    //     transform.rotation = originalRot;
+    // }
     
     private void UpdateSphereColor()
     {
@@ -522,33 +549,40 @@ public class DefaultMonster : MonoBehaviour
                 if (ultimateCoroutine != null) StopCoroutine(ultimateCoroutine);
                 ultimateCoroutine = StartCoroutine(UltimateDarknessModeCoroutine());
             }
-
         }
     }
     
 
-    private IEnumerator PlaySfxLoop()
-    {
-        while (true)
-        {
-            float waitTime = Random.Range(5f, 10f); // 5~10초 사이 랜덤
-            yield return new WaitForSeconds(waitTime);
-
-            float dist = Vector3.Distance(transform.position, playerTarget.transform.position);
-            
-            AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterDefault, dist,15);
-        }
-    }
+    // private IEnumerator PlaySfxLoop()
+    // {
+    //     while (true)
+    //     {
+    //         float waitTime = Random.Range(5f, 10f); // 5~10초 사이 랜덤
+    //         yield return new WaitForSeconds(waitTime);
+    //
+    //         float dist = Vector3.Distance(transform.position, playerTarget.transform.position);
+    //         
+    //         AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterDefault, dist,15);
+    //     }
+    // }
 
     private void GetRandomItem()
     {
         float rand = Random.Range(0f, 1f);
 
-        if (rand <= 0.1f)
+        // 22% 확률로 healPackItem 생성
+        if (rand <= 0.22f)
+        {
             Instantiate(healPackItem, transform.position + Vector3.up * 0.5f, Quaternion.identity);
-        else if (rand <= 0.2f) 
+        }
+        // 22% 확률로 cellItem 생성 (rand가 0.22~0.44 사이인 경우)
+        else if (rand <= 0.44f)
+        {
             Instantiate(cellItem, transform.position + Vector3.up * 0.5f, Quaternion.identity);
+        }
+        // 나머지 56% 구간은 아무것도 떨어뜨리지 않음
     }
+
 
     private void OnDrawGizmosSelected()
     {

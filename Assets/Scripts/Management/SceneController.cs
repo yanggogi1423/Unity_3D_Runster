@@ -29,7 +29,7 @@ public class SceneController : Singleton<SceneController>
     {
         yield return new WaitForSeconds(3f);
         canProceed = true;
-        Debug.Log("Press Space to continue...");
+
     }
 
     // === 씬 로딩 함수들 ===
@@ -62,10 +62,11 @@ public class SceneController : Singleton<SceneController>
 
     public void LoadEndingScene()
     {
+        AudioManager.Instance.StopAllSfx();
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         SceneManager.LoadScene("Ending");
-        AudioManager.Instance.PlayBGM(AudioManager.Bgm.Ending,true);
+        // AudioManager.Instance.PlayBGM(AudioManager.Bgm.Ending,true);
     }
 }
 

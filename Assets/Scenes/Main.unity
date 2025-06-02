@@ -14,10 +14,10 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
+  m_Fog: 1
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
-  m_FogDensity: 0.01
+  m_FogDensity: 0
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
@@ -819,7 +819,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1331,6 +1331,10 @@ PrefabInstance:
     - target: {fileID: 1608830041357679694, guid: a896c36b3c6bf31428e78efca89e0b32, type: 3}
       propertyPath: isUI
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1608830041357679694, guid: a896c36b3c6bf31428e78efca89e0b32, type: 3}
+      propertyPath: sprintSpeed
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 2227861814564039813, guid: a896c36b3c6bf31428e78efca89e0b32, type: 3}
       propertyPath: m_Enabled
@@ -2853,7 +2857,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 165, y: 16}
+  m_AnchoredPosition: {x: 175, y: 16}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1682843614
@@ -2890,7 +2894,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Latest Update v.20250531 by an_yan_yang Sejong Univ.
+  m_text: Latest Update v.20250602 by an_yan_yang Sejong Univ.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2917,8 +2921,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 13
+  m_fontSizeBase: 13
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3030,6 +3034,75 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &1796953951
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1796953953}
+  - component: {fileID: 1796953952}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1796953952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1796953951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af606d212fe005c45b896251c871db61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bgmMixerGroup: {fileID: 0}
+  sfxMixerGroup: {fileID: 0}
+  bgmClips:
+  - {fileID: 8300000, guid: e41771d1a335eed48a07ecd556abb8ce, type: 3}
+  - {fileID: 8300000, guid: 86ff43729216e7f4384af7044da6140d, type: 3}
+  - {fileID: 8300000, guid: 9c8ca4792189cec408f4fabf28b01ac9, type: 3}
+  - {fileID: 8300000, guid: 7f50ea40847093a4e826c1f0af088f09, type: 3}
+  bgmVolume: 0.1
+  sfxClips:
+  - {fileID: 8300000, guid: 94a2f0b7954539e42b5592202787b36a, type: 3}
+  - {fileID: 8300000, guid: c42f5b2e6130df54880657ef6dff6817, type: 3}
+  - {fileID: 8300000, guid: e1d9b41672badc4489431b48da30993c, type: 3}
+  - {fileID: 8300000, guid: d7f7ad179e75d4a499adf1389315962a, type: 3}
+  - {fileID: 8300000, guid: e725c9def751eff4e87c692aebfcd4ef, type: 3}
+  - {fileID: 8300000, guid: 23cf1249d447d804b8bdd79d539c6fe6, type: 3}
+  - {fileID: 8300000, guid: 8663baeb54a1c95459dfd8c052de7837, type: 3}
+  - {fileID: 8300000, guid: d4141203013b82546b56c5551382cc26, type: 3}
+  - {fileID: 8300000, guid: 8c8731e34f19cf64f8ee3b30a8ea3e38, type: 3}
+  - {fileID: 8300000, guid: 314186631d843a24a8d560d2b9f314a2, type: 3}
+  - {fileID: 8300000, guid: e87f0d05b3c607846bc8dfe9a245fc3e, type: 3}
+  - {fileID: 8300000, guid: 6b7d19bfc5073c9469786801307020fa, type: 3}
+  - {fileID: 8300000, guid: 9f89d81fcbaf09f46a0879c2c937d0f1, type: 3}
+  - {fileID: 8300000, guid: 5647c4fd345474a4fa7952a0c672d4b4, type: 3}
+  - {fileID: 8300000, guid: a21ab2608ef275642938ab9a3311a8d9, type: 3}
+  sfxVolume: 1
+--- !u!4 &1796953953
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1796953951}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 130.03848, y: -12.601908, z: -28.339315}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1870075479
 GameObject:
   m_ObjectHideFlags: 0
@@ -3436,70 +3509,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2098692375
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2098692377}
-  - component: {fileID: 2098692376}
-  m_Layer: 0
-  m_Name: AudioManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2098692376
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2098692375}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af606d212fe005c45b896251c871db61, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bgmMixerGroup: {fileID: 0}
-  sfxMixerGroup: {fileID: 0}
-  bgmClips:
-  - {fileID: 8300000, guid: e41771d1a335eed48a07ecd556abb8ce, type: 3}
-  - {fileID: 8300000, guid: 86ff43729216e7f4384af7044da6140d, type: 3}
-  - {fileID: 8300000, guid: 9c8ca4792189cec408f4fabf28b01ac9, type: 3}
-  bgmVolume: 0.2
-  sfxClips:
-  - {fileID: 8300000, guid: 94a2f0b7954539e42b5592202787b36a, type: 3}
-  - {fileID: 8300000, guid: c42f5b2e6130df54880657ef6dff6817, type: 3}
-  - {fileID: 8300000, guid: e1d9b41672badc4489431b48da30993c, type: 3}
-  - {fileID: 8300000, guid: d7f7ad179e75d4a499adf1389315962a, type: 3}
-  - {fileID: 8300000, guid: e725c9def751eff4e87c692aebfcd4ef, type: 3}
-  - {fileID: 8300000, guid: 23cf1249d447d804b8bdd79d539c6fe6, type: 3}
-  - {fileID: 8300000, guid: 314186631d843a24a8d560d2b9f314a2, type: 3}
-  - {fileID: 8300000, guid: e87f0d05b3c607846bc8dfe9a245fc3e, type: 3}
-  - {fileID: 8300000, guid: 6b7d19bfc5073c9469786801307020fa, type: 3}
-  - {fileID: 8300000, guid: 9f89d81fcbaf09f46a0879c2c937d0f1, type: 3}
-  - {fileID: 8300000, guid: 5647c4fd345474a4fa7952a0c672d4b4, type: 3}
-  sfxVolume: 1
---- !u!4 &2098692377
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2098692375}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 130.03848, y: -12.601908, z: -28.339315}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -3512,6 +3521,6 @@ SceneRoots:
   - {fileID: 1299781018}
   - {fileID: 1386583919}
   - {fileID: 2074861887}
-  - {fileID: 2098692377}
   - {fileID: 1927747011}
   - {fileID: 564453917}
+  - {fileID: 1796953953}

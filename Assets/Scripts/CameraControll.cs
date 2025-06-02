@@ -40,7 +40,7 @@ public class CameraControll : MonoBehaviour
     }
 
     public CameraState curState;
-    public KeyCode camChangeKey = KeyCode.F5;
+    public KeyCode camChangeKey = KeyCode.T;
     
     [Header("Cinemachine")]
     CinemachineBrain brain;
@@ -80,8 +80,8 @@ public class CameraControll : MonoBehaviour
         }
         
         //  Mouse Input
-        float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensY;
+        float mouseX = Input.GetAxisRaw("Mouse X") * sensX;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * sensY;
         
         yRotation += mouseX;
         
@@ -89,12 +89,14 @@ public class CameraControll : MonoBehaviour
         xRotation = Mathf.Clamp(xRotation, -90f, 45f);  //  상하 제한
 
         // cameraContainer.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        if (!cursorVisibility)
+        {
+            camOrientation.rotation = Quaternion.Euler(xRotation, yRotation, curZTilt);
+            orientation.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+            //  Player Rotation
+            pm.PlayerRotation(yRotation);
+        }
         
-        camOrientation.rotation = Quaternion.Euler(xRotation, yRotation, curZTilt);
-        orientation.rotation = Quaternion.Euler(xRotation, yRotation, 0);
-        
-        //  Player Rotation
-        pm.PlayerRotation(yRotation);
         
         CheckInput();
         

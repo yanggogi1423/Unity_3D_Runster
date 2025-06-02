@@ -15,11 +15,13 @@ public class EndingDirector : MonoBehaviour
 
         if (GameManager.Instance.playerDie)
         {
+            AudioManager.Instance.PlayBGM(AudioManager.Bgm.GameOver,true);
             clearText.SetActive(false);
             failedText.SetActive(true);
         }
         else
         {
+            AudioManager.Instance.PlayBGM(AudioManager.Bgm.Ending,true);
             clearText.SetActive(true);
             failedText.SetActive(false);
         }

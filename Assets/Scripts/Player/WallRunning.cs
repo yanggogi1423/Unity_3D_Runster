@@ -186,7 +186,6 @@ public class WallRunning : MonoBehaviour
         cc.radius = 0.59f;
 
         wallRunTimer = maxWallRunTime;
-        Debug.Log("Reset Wall Run Time");
         
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         
@@ -256,7 +255,6 @@ public class WallRunning : MonoBehaviour
 
     private void WallJump()
     {
-        Debug.Log("Wall Jump!");
         AudioManager.Instance.PlaySfx(AudioManager.Sfx.PlayerJump);
         
         //  Jump Animation

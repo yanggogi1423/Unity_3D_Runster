@@ -29,7 +29,8 @@ public class AudioManager : Singleton<AudioManager>
     {
         Main,
         InGame,
-        Ending
+        Ending,
+        GameOver
     }
 
     public enum Sfx
@@ -40,11 +41,15 @@ public class AudioManager : Singleton<AudioManager>
         PlayerRunning,
         PlayerWallRunning,
         PlayerJump,
+        PlayerHit,
+        UltimateUsable,
+        PlayerDie,
         MonsterDefault,
         MonsterHit,
         MonsterDie,
         MonsterUltimate,
-        Darkness
+        Darkness,
+        ItemSound
     }
     
     void Awake()

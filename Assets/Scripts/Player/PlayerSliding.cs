@@ -75,8 +75,6 @@ public class PlayerSliding : MonoBehaviour
 
     private void StartSliding()
     {
-        Debug.Log("Slide Start");
-        
         pm.anim.SetBool("isSliding", true);
         
         pm.sliding = true;
@@ -86,31 +84,62 @@ public class PlayerSliding : MonoBehaviour
 
         slideTimer = maxSlideTime;
     }
-
+    
     private void SlidingMovement()
     {
-        //  입력 들어온 방향을 계산
-        Vector3 inputDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
-        
-        //  Sliding Normal
+        // (1) 입력에 따라 얻은 orientation.forward/ right → 수평으로만 뽑기
+        Vector3 flatForward = new Vector3(orientation.forward.x, 0f, orientation.forward.z).normalized;
+        Vector3 flatRight   = new Vector3(orientation.right.x,   0f, orientation.right.z).normalized;
+    
+        // (2) 키 입력 방향을 수평 벡터들로 결합
+        Vector3 inputDirection = flatForward * verticalInput + flatRight * horizontalInput;
+
+        // (3) 경사면 위가 아닐 때(또는 위로 솟구치지 않을 때)는 평지 슬라이딩
         if (!pm.OnSlope() || rb.linearVelocity.y > -0.1f)
         {
             rb.AddForce(inputDirection.normalized * slideForce, ForceMode.Force);
-
             slideTimer -= Time.deltaTime;
         }
-
-        //  Sliding down a slope - Timer 줄어들지 않음 
+        // (4) 경사면 아래로 미끄러질 때는 slope 속도 방향으로
         else
         {
-            rb.AddForce(pm.GetSlopeMoveDirection(inputDirection) * slideForce, ForceMode.Force);
+            Vector3 slopeDir = pm.GetSlopeMoveDirection(inputDirection);
+            rb.AddForce(slopeDir * slideForce, ForceMode.Force);
+            // 이 때는 slideTimer를 줄이지 않으므로 따로 처리하지 않음
         }
 
-        if (slideTimer <= 0)
+        // (5) 시간이 다 되면 슬라이딩 종료
+        if (slideTimer <= 0f)
         {
             StopSlide();
         }
     }
+
+
+    // private void SlidingMovement()
+    // {
+    //     //  입력 들어온 방향을 계산
+    //     Vector3 inputDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+    //     
+    //     //  Sliding Normal
+    //     if (!pm.OnSlope() || rb.linearVelocity.y > -0.1f)
+    //     {
+    //         rb.AddForce(inputDirection.normalized * slideForce, ForceMode.Force);
+    //
+    //         slideTimer -= Time.deltaTime;
+    //     }
+    //
+    //     //  Sliding down a slope - Timer 줄어들지 않음 
+    //     else
+    //     {
+    //         rb.AddForce(pm.GetSlopeMoveDirection(inputDirection) * slideForce, ForceMode.Force);
+    //     }
+    //
+    //     if (slideTimer <= 0)
+    //     {
+    //         StopSlide();
+    //     }
+    // }
 
     private void StopSlide()
     {

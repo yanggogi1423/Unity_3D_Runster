@@ -13,7 +13,7 @@ public class PlayerAttack : MonoBehaviour
     
     [SerializeField] private Transform firePos;               // 총구 위치
     [SerializeField] private GameObject bulletEffectPrefab;   // 총알 이펙트 프리팹
-    [SerializeField] private float speed = 10000f;
+    [SerializeField] private float speed = 15000f;
 
     [Header("MuzzleFlash")] public GameObject muzzle;
 
@@ -45,7 +45,7 @@ public class PlayerAttack : MonoBehaviour
     {
         if (Input.GetMouseButton(0) && fireTimer >= fireCooldown && pm.CheckShootable())
         {
-            if (pm.player.desireBoost < 2f) return;
+            if (pm.player.desireBoost < 1f) return;
             
             fireTimer = 0f; // 쿨타임 리셋
 
@@ -67,7 +67,7 @@ public class PlayerAttack : MonoBehaviour
 
                 if (pm.player.curBoost > 0f)
                 {
-                    pm.player.desireBoost -= 2f;
+                    pm.player.desireBoost -= 1f;
                     pm.player.desireBoost = Mathf.Max(0f, pm.player.desireBoost);
                     pm.player.OnPlayerBoostChaged.Invoke();
                 }

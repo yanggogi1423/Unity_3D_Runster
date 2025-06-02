@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -19,7 +20,7 @@ public class Player : MonoBehaviour
     [SerializeField] public float desireUltimate;
     [SerializeField] public float curUltimate;
     
-    [SerializeField] private float graceTime = 3f;  //  무적 시간
+    [SerializeField] private float graceTime = 0.5f;  //  무적 시간
     [SerializeField] private bool isGrace;
 
     [SerializeField] public bool isDead;
@@ -68,7 +69,7 @@ public class Player : MonoBehaviour
         curBoost = desireBoost = maxBoost;
         
         //  For Debug -> 원래는 0으로 초기화
-        curUltimate = desireUltimate = maxUltimate;
+        curUltimate = desireUltimate = 0;
         
         isGrace = false;
         
@@ -79,7 +80,7 @@ public class Player : MonoBehaviour
         
         killedEnemies = 0;
 
-        ultimateOffset = 5f;
+        ultimateOffset = 11f;
         isKillTime = false;
         
         boostCoroutine = null;
@@ -106,12 +107,12 @@ public class Player : MonoBehaviour
         CheckAboutUltimate();
         
         //  Hyper
-        if (!isHyper && rb.linearVelocity.magnitude > 12f && pm.curState != PlayerMovement.MovementState.Air)
+        if (!isHyper && rb.linearVelocity.magnitude > 13.5f && pm.curState != PlayerMovement.MovementState.Air)
         {
             isHyper = true;
             hyperEffects.SetActive(true);
         }
-        else if(isHyper && rb.linearVelocity.magnitude <= 12f)
+        else if(isHyper && rb.linearVelocity.magnitude <= 13.5f)
         {
             isHyper = false;
             hyperEffects.SetActive(false);
@@ -185,7 +186,10 @@ public class Player : MonoBehaviour
             OnPlayerBoostChaged.Invoke();
 
             if ((isBoostCharge && curBoost >= maxBoost) || (!isBoostCharge && curBoost <= 0f))
+            {
+                boostCoroutine = null;
                 yield break;
+            }
 
             yield return new WaitForSeconds(0.05f);  // 빠른 속도로 반응하도록
         }
@@ -198,11 +202,16 @@ public class Player : MonoBehaviour
         
         killTimer = maxKillTime;
         
-        desireUltimate += ultimateOffset;
+        desireUltimate = Mathf.Clamp(desireUltimate + ultimateOffset,0f,maxUltimate);
         
         OnPlayerUltimateChanged.Invoke();
-        
-        ultimateOffset++;
+
+        ultimateOffset += 1;
+
+        if (ultimateOffset >= 15f)
+        {
+            ultimateOffset = 15f;
+        }
     }
 
     private void CheckAboutUltimate()
@@ -216,7 +225,7 @@ public class Player : MonoBehaviour
         else if (killTimer <= 0f && isKillTime)
         {
             isKillTime = false;
-            ultimateOffset = 5f;
+            ultimateOffset = 11f;
             
             killTimer = 0f;
         }
@@ -240,14 +249,16 @@ public class Player : MonoBehaviour
         
         OnPlayerHpChanged.Invoke();
 
+        AudioManager.Instance.PlaySfx(AudioManager.Sfx.PlayerHit);
+
         if (curHp <= 0f && !isDead)
         {
-            Debug.Log("Game Over - Player Die");
+
             Die();
         }
         else
         {
-            Debug.Log("Grace Time ! Current Hp : " + curHp);
+
             StartCoroutine(GraceTimeCoroutine());
         }
     }
@@ -263,6 +274,8 @@ public class Player : MonoBehaviour
     {
         pm.anim.SetTrigger("die");
         isDead = true;
+
+        AudioManager.Instance.PlaySfx(AudioManager.Sfx.PlayerDie);
 
         StartCoroutine(DieCoroutine());
     }
@@ -290,11 +303,16 @@ public class Player : MonoBehaviour
 
     public void GetItemCell(int offset)
     {
-        StopCoroutine(boostCoroutine);
+        if (boostCoroutine != null)
+        {
+            StopCoroutine(boostCoroutine);
+        }
+        
         desireBoost = Mathf.Clamp(desireBoost + offset, 0, maxBoost);
         curBoost = desireBoost;
         OnPlayerBoostChaged.Invoke();
         boostCoroutine = null;
+        boostLessCoroutine = null;
         isInit = true;
     }
 

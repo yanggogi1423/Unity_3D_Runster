@@ -23,14 +23,14 @@ public class Item : MonoBehaviour
         {
             if (itemType == ItemStatus.HealPack)
             {
-                Debug.Log("Get HealPack !");
                 other.gameObject.GetComponent<Player>().GetItemHealPack(heal);
             }
             else
             {
-                Debug.Log("Get Cell !");
                 other.gameObject.GetComponent<Player>().GetItemCell(cell);
             }
+
+            AudioManager.Instance.PlaySfx(AudioManager.Sfx.ItemSound);
             Destroy(gameObject);
         }
     }
