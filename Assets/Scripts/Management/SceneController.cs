@@ -7,9 +7,11 @@ public class SceneController : Singleton<SceneController>
 {
     public bool canProceed = false;
 
+    public bool isTutorial;
+
     private void Start()
     {
-        
+        isTutorial = false;
     }
 
     private void Update()
@@ -19,8 +21,19 @@ public class SceneController : Singleton<SceneController>
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                LoadInGameScene();
-                canProceed = false;
+                if (isTutorial)
+                {
+                    LoadTutorial();
+                    canProceed = false;
+                }
+                else
+                {
+                    LoadInGameScene();
+                    canProceed = false;
+                }
+
+                //  항상 false로 초기화
+                isTutorial = false;
             }
         }
     }
@@ -43,14 +56,25 @@ public class SceneController : Singleton<SceneController>
         AudioManager.Instance.PlayBGM(AudioManager.Bgm.Main,true);
     }
 
-    public void LoadLoadingScene()
+    public void LoadLoadingScene(bool isTutorial)
     {
+        this.isTutorial = isTutorial;
+        
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         AudioManager.Instance.PlayBGM(AudioManager.Bgm.Main,false);
         SceneManager.LoadScene("Loading");
         StartCoroutine(WaitBeforeAllowingInput());
     }
+    
+    public void LoadTutorial()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        SceneManager.LoadScene("Tutorial");
+        AudioManager.Instance.PlayBGM(AudioManager.Bgm.InGame,true);
+    }
+
 
     public void LoadInGameScene()
     {

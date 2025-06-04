@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class LoadingManager : MonoBehaviour
 {
-    [Header("UIs")] public GameObject pressContainer;
+    [Header("UIs")] 
+    public GameObject pressContainer;
     
     private void Awake()
     {

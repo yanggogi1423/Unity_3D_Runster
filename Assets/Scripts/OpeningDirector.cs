@@ -81,6 +81,6 @@ public class OpeningDirector : MonoBehaviour
 
     public void OnStartButtonClick()
     {
-        SceneController.Instance.LoadLoadingScene();
+        SceneController.Instance.LoadLoadingScene(true);
     }
 }

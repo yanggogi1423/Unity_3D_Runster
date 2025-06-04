@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class TutorialManager : MonoBehaviour
@@ -7,6 +8,12 @@ public class TutorialManager : MonoBehaviour
     [Header("Monster")] public GameObject monsterPrefab;
 
     [Header("Attributes")] public State curState;
+    
+    [Header("UI")]
+    public TMP_Text tutorialTextUI;  // 인스펙터에서 연결하세요
+
+    private int textIndex = 0;
+    private bool isShowingText = false;
 
     public enum State
     {
@@ -149,11 +156,26 @@ public class TutorialManager : MonoBehaviour
 
     private void Start()
     {
-        curList = stringsList;
+        curList = stringsList[(int)curState];  // 현재 State에 해당하는 텍스트 리스트 설정
+        ShowText();  // 첫 텍스트 출력
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space) && isShowingText)
+        {
+            textIndex++;
+
+            if (textIndex < curList.Length)
+            {
+                ShowText();  // 다음 텍스트 출력
+            }
+            else
+            {
+                GoToNextState();  // 다음 State로 전환
+            }
+        }
+        
         switch (curState)
         {
             case State.Init :
@@ -200,11 +222,36 @@ public class TutorialManager : MonoBehaviour
                 break;
         }
     }
+    
+    private void GoToNextState()
+    {
+        isShowingText = false;
+        textIndex = 0;
+
+        // 현재 State + 1 로 전환 (End 상태는 유지)
+        if (curState < State.End)
+        {
+            curState++;
+            curList = stringsList[(int)curState];
+            ShowText();
+        }
+        else
+        {
+            SceneController.Instance.LoadLoadingScene(false);
+        }
+    }
+
 
     private void ShowText()
     {
-        
+        isShowingText = true;
+
+        if (textIndex < curList.Length)
+        {
+            tutorialTextUI.text = curList[textIndex];
+        }
     }
+
     
     
     
