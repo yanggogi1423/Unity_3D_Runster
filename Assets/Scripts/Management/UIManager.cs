@@ -48,6 +48,9 @@ public class UIManager : MonoBehaviour
     public GameObject operatingKeyText;
     public GameObject playText;
 
+    [Header("Settings")] 
+    public GameObject settingContainer;
+
     private void Awake()
     {
         player = playerContainer.GetComponent<Player>();
@@ -176,6 +179,7 @@ public class UIManager : MonoBehaviour
         
         operatingKeyText.SetActive(topMenuVisible);
         playText.SetActive(topMenuVisible);
+        settingContainer.SetActive(topMenuVisible);
         
         topAnim.SetBool("visible", topMenuVisible);
     }

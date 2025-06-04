@@ -1,11 +1,15 @@
 using System.Collections;
 using UnityEngine;
 using Unity.Cinemachine;
+using UnityEngine.UI;
 
 public class CameraControll : MonoBehaviour
 {
     public float sensX;
     public float sensY;
+
+    public float originX;
+    public float originY;
 
     public Transform orientation;
     public Transform camOrientation;
@@ -32,6 +36,8 @@ public class CameraControll : MonoBehaviour
     public GameObject back;
     public KeyCode cursorVisibleKey = KeyCode.Escape;
     [SerializeField] private bool cursorVisibility;
+
+    [Header("Slider")] public Slider sensitivitySlider;
     
     public enum CameraState
     {
@@ -60,6 +66,9 @@ public class CameraControll : MonoBehaviour
         curState = CameraState.First;
         firstCam.SetActive(true);
         thirdCam.SetActive(false);
+
+        originX = sensX;
+        originY = sensY;
     }
 
     private void Update()
@@ -78,19 +87,19 @@ public class CameraControll : MonoBehaviour
             thirdCam.SetActive(false);
             dieCam.SetActive(true);
         }
-        
-        //  Mouse Input
-        float mouseX = Input.GetAxisRaw("Mouse X") * sensX;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * sensY;
-        
-        yRotation += mouseX;
-        
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 45f);  //  상하 제한
 
         // cameraContainer.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         if (!cursorVisibility)
         {
+            //  Mouse Input
+            float mouseX = Input.GetAxisRaw("Mouse X") * sensX;
+            float mouseY = Input.GetAxisRaw("Mouse Y") * sensY;
+        
+            yRotation += mouseX;
+        
+            xRotation -= mouseY;
+            xRotation = Mathf.Clamp(xRotation, -90f, 45f);  //  상하 제한
+            
             camOrientation.rotation = Quaternion.Euler(xRotation, yRotation, curZTilt);
             orientation.rotation = Quaternion.Euler(xRotation, yRotation, 0);
             //  Player Rotation
@@ -136,15 +145,18 @@ public class CameraControll : MonoBehaviour
             Cursor.visible = cursorVisibility;
             back.SetActive(cursorVisibility);
             uiManager.TopMenuToggle();
+            
             Time.timeScale = 0f;
         }
         else
         {
+            Time.timeScale = 1f;
+            
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = cursorVisibility;
             back.SetActive(cursorVisibility);
             uiManager.TopMenuToggle();
-            Time.timeScale = 1f;
+            
         }
     }
 
@@ -303,6 +315,10 @@ public class CameraControll : MonoBehaviour
         tiltCoroutine = null;
     }
 
-    
+    public void OnChangeSensitivity()
+    {
+        sensX = sensitivitySlider.value * originX;
+        sensY = sensitivitySlider.value * originY;
+    }
 
 }

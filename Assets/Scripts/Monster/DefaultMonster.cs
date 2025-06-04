@@ -5,6 +5,7 @@ using MimicSpace;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Experimental.GlobalIllumination;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 using RenderSettings = UnityEngine.RenderSettings;
 
@@ -69,11 +70,17 @@ public class DefaultMonster : MonoBehaviour
     public GameObject healPackItem;
 
     public GameObject cellItem;
+
+    [Header("Hp Bar")] 
+    public Image hpProgress;
+
+    public GameObject hpCanvas;
     
     [Header("Audio")]
     private Coroutine sfxCoroutine;
 
     private float distToPlayer;
+    
     
     public enum MonsterState
     {
@@ -334,6 +341,14 @@ public class DefaultMonster : MonoBehaviour
             Debug.LogError("Prefab is null");
         }
         UpdateSphereColor(); // 색상 갱신
+
+        if (!hpCanvas.activeSelf)
+        {
+            hpCanvas.SetActive(true);
+        }
+        
+        //  Check Hp Progress
+        hpProgress.fillAmount = curHp / (float)maxHp;
         
 
         if (curHp <= 0 && !isDead)
@@ -400,9 +415,8 @@ public class DefaultMonster : MonoBehaviour
         SetAlpha(0f);
         //  For Object Pooling
         
-        gameObject.SetActive(false);
-        
-        // Destroy(gameObject);
+        // gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 
     private void SetAlpha(float alpha)

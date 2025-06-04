@@ -44,7 +44,7 @@ public class InGameManager : MonoBehaviour
     {
         SetTime();
 
-        if (!isWaving && mons.isInit)
+        if (!isWaving)
         {
             isWaving = true;
             

@@ -9,55 +9,57 @@ public class MonsterSpawner : MonoBehaviour
     [Header("Prefabs")]
     public GameObject monsterPrefab;
 
-    public List<GameObject> monsterPool;
-    public int initMonsterCnt = 50;
+    // public List<GameObject> monsterPool;
+    // public int initMonsterCnt = 50;
 
     [Header("Spawn Points")] public Transform[] spawnPointList;
 
     [Header("Attributes")] 
     public int[] maxMonster;
     
-    public bool isInit = false;
+    // public bool isInit = false;
 
     private void Start()
     {
-        SetMonsterSet();
+        // SetMonsterSet();
     }
 
-    private void SetMonsterSet()
-    {
-        for (int i = 0; i < initMonsterCnt; i++)
-        {
-            GameObject mob = Instantiate(monsterPrefab);
-            mob.SetActive(false);
-            monsterPool.Add(mob);
-        }
+    // private void SetMonsterSet()
+    // {
+    //     for (int i = 0; i < initMonsterCnt; i++)
+    //     {
+    //         GameObject mob = Instantiate(monsterPrefab);
+    //         mob.SetActive(false);
+    //         monsterPool.Add(mob);
+    //     }
+    //
+    //     isInit = true;
+    // }
 
-        isInit = true;
-    }
-
-    private void ResetList()
-    {
-        for (int i = 0; i < monsterPool.Count; i++)
-        {
-            Destroy(monsterPool[i]);
-        }
-        
-        monsterPool.Clear();
-        
-        SetMonsterSet();
-    }
+    // private void ResetList()
+    // {
+    //     for (int i = 0; i < monsterPool.Count; i++)
+    //     {
+    //         Destroy(monsterPool[i]);
+    //     }
+    //     
+    //     monsterPool.Clear();
+    //     
+    //     SetMonsterSet();
+    // }
 
     public IEnumerator SpawnMonster(int curWave)
     {
-        ResetList();
+        // ResetList();
         
         for (int i = 0; i < maxMonster[curWave - 1]; i++)
         {
-            monsterPool[i].transform.position = GetRandomSpawnPoint();
-            monsterPool[i].SetActive(true);
-            yield return new WaitForSeconds(0.1f);
+            GameObject mob = Instantiate(monsterPrefab, GetRandomSpawnPoint(), Quaternion.identity);
+            mob.SetActive(true);
+            
+            yield return new WaitForSeconds(3f);
         }
+        
     }
 
     private Vector3 GetRandomSpawnPoint()
