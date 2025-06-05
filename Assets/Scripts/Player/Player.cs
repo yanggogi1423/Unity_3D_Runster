@@ -55,7 +55,7 @@ public class Player : MonoBehaviour
     [SerializeField] private bool isKillTime;
     
     //  Coroutine
-    private Coroutine boostCoroutine;
+    public Coroutine boostCoroutine;
     private bool isBoostCharge;
     private Coroutine boostLessCoroutine;
 
@@ -114,6 +114,12 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        if (tm != null && tm.isShowingText)
+        {
+            allowBoostConsume = false;
+        }
+        else if(tm != null && !tm.isShowingText) allowBoostConsume = true;
+        
         if (!isHyper && rb.linearVelocity.magnitude > 13.5f && pm.curState != PlayerMovement.MovementState.Air)
         {
             isHyper = true;
@@ -125,18 +131,34 @@ public class Player : MonoBehaviour
             hyperEffects.SetActive(false);
         }
         
-        if (isTutorial && tm.isShowingText) return;
-        
-        if (!isTutorial || (isTutorial && tm.curState > TutorialManager.State.Boost))
-        {
-            if(tm != null && !tm.isShowingText)
-                CheckAboutBoost();
-        }
+        if (tm != null && isTutorial && tm.isShowingText) return;
 
-        if (!isTutorial || (isTutorial && tm.curState >= TutorialManager.State.PlayerUltimate))
+        if (tm != null)
         {
-            CheckAboutUltimate();    
+            if (!isTutorial || (isTutorial && tm.curState > TutorialManager.State.Boost))
+            {
+                if ((tm != null && !tm.isShowingText) || tm == null)
+                {
+                    CheckAboutBoost();
+                }
+                
+                else if(boostCoroutine != null)
+                {
+                    StopCoroutine(boostCoroutine);
+                }
+            }
+
+            if (!isTutorial || (isTutorial && tm.curState >= TutorialManager.State.PlayerUltimate))
+            {
+                CheckAboutUltimate();    
+            }
         }
+        else
+        {
+            CheckAboutBoost();
+            CheckAboutUltimate(); 
+        }
+        
         
         //  Hyper
         if (!isHyper && rb.linearVelocity.magnitude > 13.5f && pm.curState != PlayerMovement.MovementState.Air)
@@ -157,7 +179,7 @@ public class Player : MonoBehaviour
             NotEnoughBoost();
 
         //  궁극기 중에는 Boost 감소 및 회복 X
-        if (ultimateController.IsUltimateActive)
+        if (ultimateController.IsUltimateActive || !allowBoostConsume)
         {
             if (boostCoroutine != null)
             {
@@ -177,7 +199,16 @@ public class Player : MonoBehaviour
             isBoostCharge = shouldCharge;
 
             float offset = isBoostCharge ? 0.3f : -0.3f;
-            boostCoroutine = StartCoroutine(BoostChangeCoroutine(offset));
+
+            if (offset < 0.3 && !allowBoostConsume)
+            {
+                boostCoroutine = null;
+            }
+            else
+            {
+                boostCoroutine = StartCoroutine(BoostChangeCoroutine(offset));    
+            }
+            
         }
 
         isInit = false;
@@ -225,6 +256,16 @@ public class Player : MonoBehaviour
             yield return new WaitForSeconds(0.05f);  // 빠른 속도로 반응하도록
         }
     }
+    
+    public void StopBoostCoroutine()
+    {
+        if (boostCoroutine != null)
+        {
+            StopCoroutine(boostCoroutine);
+            boostCoroutine = null;
+        }
+    }
+
 
 
     public void KillEnemies()
@@ -233,18 +274,9 @@ public class Player : MonoBehaviour
         
         killTimer = maxKillTime;
 
-        if (isTutorial && tm.curState == TutorialManager.State.EnemyUltimate)
-        {
-            desireUltimate = Mathf.Clamp(desireUltimate + 100f,0f,maxUltimate);
+        desireUltimate = Mathf.Clamp(desireUltimate + ultimateOffset,0f,maxUltimate);
         
-            OnPlayerUltimateChanged.Invoke();
-        }
-        else
-        {
-            desireUltimate = Mathf.Clamp(desireUltimate + ultimateOffset,0f,maxUltimate);
-        
-            OnPlayerUltimateChanged.Invoke();
-        }
+        OnPlayerUltimateChanged.Invoke();
 
         ultimateOffset += 1;
 
@@ -254,9 +286,9 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void UltimateForTutorial()
+    public void UltimateForTutorial()
     {
-        desireUltimate = Mathf.Clamp(desireUltimate + ultimateOffset,0f,maxUltimate);
+        desireUltimate = Mathf.Clamp(desireUltimate + 100f,0f, maxUltimate);
         OnPlayerUltimateChanged.Invoke();
     }
 

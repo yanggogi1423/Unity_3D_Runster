@@ -125,6 +125,14 @@ public class WallRunning : MonoBehaviour
 
     private void CheckInput()
     {
+        if (pm.player.tm != null)
+        {
+            if (pm.player.tm.curState < TutorialManager.State.WallRun && !pm.player.tm.isShowingText)
+            {
+                return;
+            }
+        }
+        
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
@@ -194,6 +202,14 @@ public class WallRunning : MonoBehaviour
         
         if(wallLeft) cam.DoTilt(-7f);
         if(wallRight) cam.DoTilt(7f);
+
+        if (pm.player.tm != null)
+        {
+            if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.WallRun && !pm.player.tm.isShowingText)
+            {
+                StartCoroutine(ForTutorialCoroutine());
+            } 
+        }
     }
 
     private void WallRunningMovement()
@@ -249,17 +265,12 @@ public class WallRunning : MonoBehaviour
         // Reset Camera Effects
         cam.DoFov(0);
         cam.DoTilt(0f);
-
-        StartCoroutine(ForTutorialCoroutine());
     }
 
     private IEnumerator ForTutorialCoroutine()
     {
-        yield return new WaitForSeconds(7f);
-        if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.WallRun)
-        {
-            StartCoroutine(pm.player.tm.BuffNextState());
-        }
+        yield return new WaitForSeconds(5f);
+        StartCoroutine(pm.player.tm.BuffNextState());
     }
 
 

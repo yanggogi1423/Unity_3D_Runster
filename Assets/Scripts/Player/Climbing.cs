@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Climbing : MonoBehaviour
@@ -76,12 +77,19 @@ public class Climbing : MonoBehaviour
 
     private void CheckInput()
     {
+        if (pm.player.tm != null)
+        {
+            if (pm.player.tm.curState < TutorialManager.State.Climb && !pm.player.tm.isShowingText)
+            {
+                return;
+            }
+        }
+        
         if (wallFront && Input.GetKey(KeyCode.W) && wallLookAngle < maxWallLookAngle && !exitingWall)
         {
             if (!pm.climbing && climbTimer > 0)
             {
                 StartClimbing();
-                
             }
             
             //  Timer
@@ -126,6 +134,8 @@ public class Climbing : MonoBehaviour
         }
     }
 
+    private Coroutine climbCoroutine = null;
+
     private void StartClimbing()
     {
         pm.climbing = true;
@@ -137,6 +147,14 @@ public class Climbing : MonoBehaviour
 
         lastWall = frontWallHit.transform;
         lastWallNormal = frontWallHit.normal;
+        
+        
+    }
+
+    private IEnumerator ForTutorialCoroutine()
+    {
+        yield return new WaitForSeconds(5f);
+        StartCoroutine(pm.player.tm.BuffNextState());
     }
 
     private void ClimbingMovement()
@@ -149,11 +167,16 @@ public class Climbing : MonoBehaviour
     {
         pm.climbing = false;
         pm.anim.SetBool("isClimbing", false);
-        
-        if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.Climb && pm.player.tm.climbCheker)
+
+        if (pm.player.tm != null)
         {
-            StartCoroutine(pm.player.tm.BuffNextState());
+            if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.Climb 
+                                     && pm.player.tm.climbChecker  && !pm.player.tm.isShowingText && climbCoroutine == null)
+            {
+                climbCoroutine = StartCoroutine(ForTutorialCoroutine());
+            }
         }
+        
     }
 
     private void ClimbJump()

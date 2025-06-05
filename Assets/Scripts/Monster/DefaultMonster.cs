@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MimicSpace;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Experimental.GlobalIllumination;
@@ -129,7 +130,8 @@ public class DefaultMonster : MonoBehaviour
         
         de = GetComponent<DefaultEnemyMovement>();
         
-        de.agent.speed = 9.5f;
+        if(!playerTarget.GetComponent<Player>().isTutorial)
+            de.agent.speed = 8f;
 
         if (playerTarget.GetComponent<Player>().isTutorial)
         {
@@ -183,6 +185,8 @@ public class DefaultMonster : MonoBehaviour
                 de.agent.isStopped = true;
                 break;
         }
+
+        //  DefaultSoundEffect();
     }
 
     private void DefaultSoundEffect()
@@ -207,10 +211,14 @@ public class DefaultMonster : MonoBehaviour
 
             de.agent.speed = 11f;
 
-            if (playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.Attack)
+            if (playerTarget.GetComponent<Player>().tm != null)
             {
-                StartCoroutine(playerTarget.GetComponent<Player>().tm.BuffNextState());
+                if (playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.Attack)
+                {
+                    StartCoroutine(playerTarget.GetComponent<Player>().tm.BuffNextState());
+                }
             }
+            
 
             UltimateMonster();
         }
@@ -239,7 +247,8 @@ public class DefaultMonster : MonoBehaviour
         AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterUltimate);
         
         ultimateMonster.SetActive(true);
-        de.speed *= 3.5f;
+        if(!playerTarget.GetComponent<Player>().isTutorial)
+            de.speed *= 3.5f;
         de.velocityLerpCoef *= 2f;
         
         //  mimic.BoostLegSpeed();
@@ -367,6 +376,16 @@ public class DefaultMonster : MonoBehaviour
 
         if (curHp <= 0 && !isDead)
         {
+            if (playerTarget.GetComponent<Player>().tm != null)
+            {
+                if (playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.Enemy)
+                {
+                    curHp += 5;
+                    hpProgress.fillAmount = curHp / (float)maxHp;
+                    return;
+                }
+            }
+            
             curState = MonsterState.Die;
             isDead = true;
             
@@ -392,17 +411,15 @@ public class DefaultMonster : MonoBehaviour
         
         StartCoroutine(FadeOutCoroutine());
 
-        if (playerTarget.GetComponent<Player>().isTutorial &&
-            playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.EnemyUltimate)
+        if (playerTarget.GetComponent<Player>().tm != null)
         {
-            StartCoroutine(playerTarget.GetComponent<Player>().tm.BuffNextState());
+            if (playerTarget.GetComponent<Player>().isTutorial &&
+                playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.EnemyUltimate)
+            {
+                StartCoroutine(playerTarget.GetComponent<Player>().tm.BuffNextState());
+            }
         }
         
-        if (playerTarget.GetComponent<Player>().isTutorial &&
-            playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.PlayerUltimate)
-        {
-            playerTarget.GetComponent<Player>().tm.dieMonsters++;
-        }
         // StartCoroutine(ShakeCoroutine());
     }
 
@@ -431,6 +448,7 @@ public class DefaultMonster : MonoBehaviour
             }
 
             timer += Time.deltaTime;
+            
             yield return null;
         }
 
@@ -438,6 +456,20 @@ public class DefaultMonster : MonoBehaviour
 
         if (directionalLight != null)
             directionalLight.gameObject.SetActive(true);
+
+        if (playerTarget.GetComponent<Player>().tm != null)
+        {
+            if (playerTarget.GetComponent<Player>().isTutorial &&
+                playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.PlayerUltimate)
+            {
+                playerTarget.GetComponent<Player>().tm.dieMonsters++;
+            }
+        }
+        if (playerTarget.GetComponent<Player>().isTutorial &&
+            playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.PlayerUltimate)
+        {
+            playerTarget.GetComponent<Player>().tm.dieMonsters++;
+        }
 
         SetAlpha(0f);
         //  For Object Pooling

@@ -363,7 +363,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -670,6 +670,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canProceed: 0
+  isTutorial: 0
 --- !u!4 &564453917
 Transform:
   m_ObjectHideFlags: 0
@@ -974,7 +975,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -3067,6 +3068,7 @@ MonoBehaviour:
   sfxMixerGroup: {fileID: 0}
   bgmClips:
   - {fileID: 8300000, guid: e41771d1a335eed48a07ecd556abb8ce, type: 3}
+  - {fileID: 8300000, guid: 381456b181e12b743bf3b8eaa2a20e60, type: 3}
   - {fileID: 8300000, guid: 86ff43729216e7f4384af7044da6140d, type: 3}
   - {fileID: 8300000, guid: 9c8ca4792189cec408f4fabf28b01ac9, type: 3}
   - {fileID: 8300000, guid: 7f50ea40847093a4e826c1f0af088f09, type: 3}
@@ -3238,6 +3240,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isClear: 0
   playerDie: 0
+  originX: 0
+  originY: 0
+  curX: 0
+  curY: 0
 --- !u!4 &1927747011
 Transform:
   m_ObjectHideFlags: 0

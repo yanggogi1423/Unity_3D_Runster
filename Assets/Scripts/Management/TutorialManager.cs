@@ -11,8 +11,9 @@ public class TutorialManager : MonoBehaviour
     public GameObject [] monsterList;
 
     [Header("Attributes")] public State curState;
-    
+
     [Header("UI")]
+    public GameObject tutorialPanel;
     public TMP_Text tutorialTextUI;  // 인스펙터에서 연결하세요
 
     private int textIndex = 0;
@@ -52,7 +53,7 @@ public class TutorialManager : MonoBehaviour
     private List<String[]> stringsList;
     private String[] curList;
 
-    [Header("Handlers")] public bool climbCheker;
+    [Header("Handlers")] public bool climbChecker;
     public int dieMonsters;
     
     #region Script
@@ -95,7 +96,7 @@ public class TutorialManager : MonoBehaviour
         stringsList.Add(new String[]
         {
             "아주 잘했습니다. 기본적인 이동은 해냈습니다.",
-            "요원에 따라 바라보는 시각에 따라 명중률이 달라진다고 하더군요.",
+            "요원들은 바라보는 시각에 따라 명중률이 달라진다고 하더군요.",
             "T 키를 누르면 시점을 전환할 수 있습니다."
         } );
         
@@ -153,7 +154,7 @@ public class TutorialManager : MonoBehaviour
             "적을 처치하면, 하단 바 가운데에 궁극기 게이지가 차오릅니다.",
             "100%가 되면 우리가 개발한 자동 표적 조준기를 가동할 수 있습니다.",
             "아 물론 공격은 수동이기에, 좌클릭을 꼭 하셔야 합니다.",
-            "서비스로 부스트또한 무한 상태로 돌입하게 되죠.",
+            "서비스로 부스트 또한 무한 상태로 돌입하게 되죠.",
             "사용 권한을 드릴테니, 사용해볼까요?"
         } );
         
@@ -161,7 +162,7 @@ public class TutorialManager : MonoBehaviour
         {
             "수고하셨습니다. 모든 모의 전투가 종료됩니다.",
             "우리의 숙명을 잊지마시길 바랍니다.",
-            "달려라. 싸워라.",
+            "\"달려라. 싸워라.\"",
             "------ 연결 종료 ------"
         } );
     }
@@ -177,8 +178,10 @@ public class TutorialManager : MonoBehaviour
         
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
 
-        climbCheker = false;
+        climbChecker = false;
         dieMonsters = 0;
+        
+        tutorialPanel.SetActive(false);
     }
 
     private void Start()
@@ -203,6 +206,7 @@ public class TutorialManager : MonoBehaviour
             else
             {
                 tutorialTextUI.SetText("");
+                tutorialPanel.SetActive(false);
                 StartCoroutine(MakeTermEndText());
                 
                 if (curState == State.Move)
@@ -215,11 +219,20 @@ public class TutorialManager : MonoBehaviour
                 }
                 else if (curState == State.Climb)
                 {
-                    climbCheker = true;
+                    climbChecker = true;
                 }
                 else if (curState == State.Boost)
                 {
                     StartCoroutine(BuffNextState());
+                }
+                else if (curState == State.PlayerUltimate)
+                {
+                    SpawnMonster();
+                    player.UltimateForTutorial();
+                }
+                else if (curState == State.End)
+                {
+                    SceneController.Instance.LoadLoadingScene(false);
                 }
             }
         }
@@ -268,14 +281,13 @@ public class TutorialManager : MonoBehaviour
             case State.PlayerUltimate :
                 if (dieMonsters >= 3)
                 {
+                    dieMonsters = 0;
                     StartCoroutine(BuffNextState());
+                    Debug.Log("Oh!");
                 }
                 break;
             case State.End :
-                if (!isShowingText)
-                {
-                    SceneController.Instance.LoadInGameScene();
-                }
+                
                 break;
         }
     }
@@ -291,9 +303,10 @@ public class TutorialManager : MonoBehaviour
         textIndex = 0;
 
         // 현재 State + 1 로 전환 (End 상태는 유지)
-        if (curState < State.End)
+        if (curState <= State.End)
         {
             ShowText();
+            
             if (curState == State.Enemy)
             {
                 cc.curCam = cc.firstCam.activeSelf ? cc.firstCam : cc.thirdCam;
@@ -303,17 +316,19 @@ public class TutorialManager : MonoBehaviour
                 cc.curCam.SetActive(false);
                 enemyCam.SetActive(true);
             }
+            
         }
-        else
-        {
-            SceneController.Instance.LoadLoadingScene(false);
-        }
+//        else
+//        {
+//            SceneController.Instance.LoadLoadingScene(false);
+//        }
     }
 
     public IEnumerator BuffNextState()
     {
-        StartCoroutine(MakeTermEndText());
-
+        if(curState != State.Attack && curState != State.EnemyUltimate && curState != State.WallRun)
+            StartCoroutine(MakeTermEndText());
+        
         if (curState < State.End)
         {
             if (curState == State.Enemy)
@@ -324,7 +339,12 @@ public class TutorialManager : MonoBehaviour
             curState++;
             curList = stringsList[(int)curState];
         }
-        yield return new WaitForSeconds(2f);
+        
+        if (curState == State.EnemyUltimate || curState == State.PlayerUltimate || curState == State.Climb)
+            yield return null;
+        else
+            yield return new WaitForSeconds(1.5f);
+        
         GoToNextState();
     }
 
@@ -337,6 +357,7 @@ public class TutorialManager : MonoBehaviour
 
         if (textIndex < curList.Length)
         {
+            tutorialPanel.SetActive(true);
             tutorialTextUI.text = curList[textIndex];
         }
     }
@@ -353,13 +374,21 @@ public class TutorialManager : MonoBehaviour
     {
         Debug.Log("Stop Player");
         player.rb.linearVelocity = Vector3.zero;
-        player.rb.AddForce(Vector3.down * 25f, ForceMode.Impulse);
+        player.rb.AddForce(Vector3.down, ForceMode.Impulse);
         player.pm.curState = PlayerMovement.MovementState.Idle;
         player.pm.cam.DoTilt(0f);
         player.pm.cam.DoFov(0);
         player.pm.StateMachine();
         player.pm.horizontalInput = 0;
         player.pm.verticalInput = 0;
+
+        player.StopBoostCoroutine();
+        
+    }
+
+    public void SkipTutorial()
+    {
+        SceneController.Instance.LoadLoadingScene(false);
     }
     
 }

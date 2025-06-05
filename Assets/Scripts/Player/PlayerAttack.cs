@@ -38,8 +38,8 @@ public class PlayerAttack : MonoBehaviour
         fireTimer += Time.deltaTime;
 
         Detection();
-        
-        if(!pm.player.tm.isShowingText)
+
+        if ((pm.player.tm != null && !pm.player.tm.isShowingText) || pm.player.tm == null)
             CheckInput();
     }
 

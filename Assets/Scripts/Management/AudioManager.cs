@@ -28,6 +28,7 @@ public class AudioManager : Singleton<AudioManager>
     public enum Bgm
     {
         Main,
+        Tutorial,
         InGame,
         Ending,
         GameOver

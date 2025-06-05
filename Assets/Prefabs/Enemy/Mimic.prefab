@@ -409,7 +409,7 @@ MonoBehaviour:
   minGrowCoef: 4.5
   maxGrowCoef: 6.5
   newLegCooldown: 0.3
-  velocity: {x: 0.61934817, y: 0, z: -0.7316678}
+  velocity: {x: -0.08234947, y: 0, z: -0.30421102}
   dm: {fileID: 0}
   legLineList: []
   isDying: 0
@@ -492,7 +492,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.75
+  m_Radius: 1.25
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!195 &1674008009995973181
 NavMeshAgent:

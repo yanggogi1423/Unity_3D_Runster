@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class SceneController : Singleton<SceneController>
 {
-    public bool canProceed = false;
 
     public bool isTutorial;
 
@@ -13,37 +12,7 @@ public class SceneController : Singleton<SceneController>
     {
         isTutorial = false;
     }
-
-    private void Update()
-    {
-        // Loading 씬에서 Space 입력 가능할 때만 반응
-        if (SceneManager.GetActiveScene().name == "Loading" && canProceed)
-        {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                if (isTutorial)
-                {
-                    LoadTutorial();
-                    canProceed = false;
-                }
-                else
-                {
-                    LoadInGameScene();
-                    canProceed = false;
-                }
-
-                //  항상 false로 초기화
-                isTutorial = false;
-            }
-        }
-    }
-
-    private IEnumerator WaitBeforeAllowingInput()
-    {
-        yield return new WaitForSeconds(3f);
-        canProceed = true;
-
-    }
+    
 
     // === 씬 로딩 함수들 ===
 
@@ -59,12 +28,20 @@ public class SceneController : Singleton<SceneController>
     public void LoadLoadingScene(bool isTutorial)
     {
         this.isTutorial = isTutorial;
+
+        Time.timeScale = 1f;
+        
+        AudioManager.Instance.StopAllLoopingSfx();
+        AudioManager.Instance.StopAllSfx();
+        
+        StopAllCoroutines();
         
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        AudioManager.Instance.PlayBGM(AudioManager.Bgm.Tutorial,false);
         AudioManager.Instance.PlayBGM(AudioManager.Bgm.Main,false);
         SceneManager.LoadScene("Loading");
-        StartCoroutine(WaitBeforeAllowingInput());
+        
     }
     
     public void LoadTutorial()
@@ -72,7 +49,7 @@ public class SceneController : Singleton<SceneController>
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         SceneManager.LoadScene("Tutorial");
-        AudioManager.Instance.PlayBGM(AudioManager.Bgm.InGame,true);
+        AudioManager.Instance.PlayBGM(AudioManager.Bgm.Tutorial,true);
     }
 
 

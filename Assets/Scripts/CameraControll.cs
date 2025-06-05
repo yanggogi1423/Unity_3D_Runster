@@ -8,9 +8,6 @@ public class CameraControll : MonoBehaviour
     public float sensX;
     public float sensY;
 
-    public float originX;
-    public float originY;
-
     public Transform orientation;
     public Transform camOrientation;
     public Transform cameraContainer;
@@ -69,8 +66,8 @@ public class CameraControll : MonoBehaviour
         firstCam.SetActive(true);
         thirdCam.SetActive(false);
 
-        originX = sensX;
-        originY = sensY;
+        sensX = GameManager.Instance.curX;
+        sensY = GameManager.Instance.curY;
     }
 
     private void Update()
@@ -150,6 +147,8 @@ public class CameraControll : MonoBehaviour
             uiManager.TopMenuToggle();
             
             Time.timeScale = 0f;
+
+            sensitivitySlider.value = (GameManager.Instance.curX / GameManager.Instance.originX);
         }
         else
         {
@@ -159,6 +158,7 @@ public class CameraControll : MonoBehaviour
             Cursor.visible = cursorVisibility;
             back.SetActive(cursorVisibility);
             uiManager.TopMenuToggle();
+            
             
         }
     }
@@ -192,11 +192,15 @@ public class CameraControll : MonoBehaviour
             }
             
             ChangeCamera();
-            
-            if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.FirstThird)
+
+            if (pm.player.tm != null)
             {
-                StartCoroutine(pm.player.tm.BuffNextState());
+                if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.FirstThird && !pm.player.tm.isShowingText)
+                {
+                    StartCoroutine(pm.player.tm.BuffNextState());
+                }
             }
+            
         }
     }
 
@@ -325,8 +329,11 @@ public class CameraControll : MonoBehaviour
 
     public void OnChangeSensitivity()
     {
-        sensX = sensitivitySlider.value * originX;
-        sensY = sensitivitySlider.value * originY;
+        GameManager.Instance.curX = sensitivitySlider.value * GameManager.Instance.originX;
+        GameManager.Instance.curY = sensitivitySlider.value * GameManager.Instance.originY;
+
+        sensX = GameManager.Instance.curX;
+        sensY = GameManager.Instance.curY;
     }
 
 }

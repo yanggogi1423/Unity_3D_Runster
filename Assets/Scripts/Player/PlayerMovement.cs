@@ -192,7 +192,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        if (player.isTutorial && player.tm.isShowingText) return;
+        if(player.tm != null)
+            if (player.isTutorial && player.tm.isShowingText) return;
         
         if (isUI)
         {
@@ -274,7 +275,7 @@ public class PlayerMovement : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
         
         //  Checking Jump
-        if (player.isTutorial && !player.tm.isShowingText)
+        if ((player.isTutorial && !player.tm.isShowingText) || player.tm == null )
         {
             if (Input.GetKey(jumpKey) && readyToJump && (isGrounded || isOnSlope))
             {
@@ -286,10 +287,14 @@ public class PlayerMovement : MonoBehaviour
                 anim.SetBool("isIdle", false);  //  Climb인 경우에는 상쇄된다.
 
                 Jump();
-                if (player.tm.curState == TutorialManager.State.Jump)
+                if (player.tm != null)
                 {
-                    StartCoroutine(player.tm.BuffNextState());
+                    if (player.tm.curState == TutorialManager.State.Jump && !player.tm.isShowingText)
+                    {
+                        StartCoroutine(player.tm.BuffNextState());
+                    }
                 }
+                
             
                 //  nameof를 통해 함수 이름을 string으로 반환 가능 - 일정 시간 후 Jump 쿨타임 해제
                 Invoke(nameof(ResetJump), jumpCooldown);
@@ -453,13 +458,13 @@ public class PlayerMovement : MonoBehaviour
                     desiredMoveSpeed = sprintSpeed;
                 }
             }
-
+/*
             //  Crouching
             else if (Input.GetKey(crouchKey))
             {
                 curState = MovementState.Crouching;
                 desiredMoveSpeed = crouchSpeed;
-            }
+            } */
             //  Sprinting
             else if (isGrounded && Input.GetKey(sprintKey))
             {
@@ -467,9 +472,12 @@ public class PlayerMovement : MonoBehaviour
                 cam.DoFov(1);
                 desiredMoveSpeed = sprintSpeed;
 
-                if (player.isTutorial && player.tm.curState == TutorialManager.State.Run)
+                if(player.tm != null)
                 {
-                    StartCoroutine(player.tm.BuffNextState());
+                    if (player.isTutorial && player.tm.curState == TutorialManager.State.Run && !player.tm.isShowingText)
+                    {
+                        StartCoroutine(player.tm.BuffNextState());
+                    }
                 }
             }
             else if (isGrounded)    //  Walk
