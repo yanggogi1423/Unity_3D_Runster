@@ -29,6 +29,8 @@ public class CameraControll : MonoBehaviour
     public GameObject clearCam;
     public GameObject dieCam;
 
+    public GameObject curCam;
+
     [Header("UI")] 
     public UIManager uiManager;
 
@@ -118,6 +120,7 @@ public class CameraControll : MonoBehaviour
             AudioManager.Instance.StopAllLoopingSfx();
             
             SetCursorVisible();
+            
         }
     }
     
@@ -189,6 +192,11 @@ public class CameraControll : MonoBehaviour
             }
             
             ChangeCamera();
+            
+            if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.FirstThird)
+            {
+                StartCoroutine(pm.player.tm.BuffNextState());
+            }
         }
     }
 

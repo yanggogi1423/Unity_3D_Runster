@@ -1,11 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class TutorialManager : MonoBehaviour
 {
-    [Header("Monster")] public GameObject monsterPrefab;
+    [Header("Monster")] public GameObject monster;
+
+    public GameObject [] monsterList;
 
     [Header("Attributes")] public State curState;
     
@@ -13,7 +16,19 @@ public class TutorialManager : MonoBehaviour
     public TMP_Text tutorialTextUI;  // 인스펙터에서 연결하세요
 
     private int textIndex = 0;
-    private bool isShowingText = false;
+    public bool isShowingText = false;
+    
+    [Header("Portal")]
+    public GameObject portal;
+
+    [Header("Enemy Cam")] 
+    public GameObject enemyCam;
+
+    public CameraControll cc;
+    
+    [Header("Player")]
+    public Player player;
+    
 
     public enum State
     {
@@ -37,11 +52,16 @@ public class TutorialManager : MonoBehaviour
     private List<String[]> stringsList;
     private String[] curList;
 
+    [Header("Handlers")] public bool climbCheker;
+    public int dieMonsters;
+    
+    #region Script
+    
     private void SetText()
     {
         stringsList.Add(new String[]
         {
-            "반갑습니다. 저는 기본 전투 훈련 시스템입니다.",
+            "반갑습니다. 저는 기본 전투 훈련 시스템입니다. Space를 눌러 다음으로 진행합니다.",
             "당신은 임무를 완수하기 위해 배치 받은 Runster 요원입니다.",
             "귀하의 성공적인 임무를 위해 지금부터 전투에 대한 사항을 알려드리겠습니다.",
             "혹시 제 얘기가 기억이 나지 않으신다면 esc키를 눌러 조작법을 재확인할 수 있습니다."
@@ -146,12 +166,19 @@ public class TutorialManager : MonoBehaviour
         } );
     }
 
+    #endregion
+
     private void Awake()
     {
         curState = State.Init;
 
         stringsList = new List<string[]>();
         SetText();
+        
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+
+        climbCheker = false;
+        dieMonsters = 0;
     }
 
     private void Start()
@@ -162,6 +189,9 @@ public class TutorialManager : MonoBehaviour
 
     private void Update()
     {
+        if(isShowingText)
+            StopPlayer();
+        
         if (Input.GetKeyDown(KeyCode.Space) && isShowingText)
         {
             textIndex++;
@@ -172,14 +202,35 @@ public class TutorialManager : MonoBehaviour
             }
             else
             {
-                GoToNextState();  // 다음 State로 전환
+                tutorialTextUI.SetText("");
+                StartCoroutine(MakeTermEndText());
+                
+                if (curState == State.Move)
+                {
+                    portal.SetActive(true);
+                }
+                else if (curState == State.Enemy)
+                {
+                    StartCoroutine(BuffNextState());
+                }
+                else if (curState == State.Climb)
+                {
+                    climbCheker = true;
+                }
+                else if (curState == State.Boost)
+                {
+                    StartCoroutine(BuffNextState());
+                }
             }
         }
         
         switch (curState)
         {
             case State.Init :
-                
+                if (!isShowingText)
+                {
+                    StartCoroutine(BuffNextState());
+                }
                 break;
             case State.Move :
                 
@@ -215,25 +266,43 @@ public class TutorialManager : MonoBehaviour
                 
                 break;
             case State.PlayerUltimate :
-                
+                if (dieMonsters >= 3)
+                {
+                    StartCoroutine(BuffNextState());
+                }
                 break;
             case State.End :
-                
+                if (!isShowingText)
+                {
+                    SceneController.Instance.LoadInGameScene();
+                }
                 break;
         }
+    }
+
+    private IEnumerator MakeTermEndText()
+    {
+        yield return new WaitForSeconds(1f);
+        isShowingText = false;
     }
     
     private void GoToNextState()
     {
-        isShowingText = false;
         textIndex = 0;
 
         // 현재 State + 1 로 전환 (End 상태는 유지)
         if (curState < State.End)
         {
-            curState++;
-            curList = stringsList[(int)curState];
             ShowText();
+            if (curState == State.Enemy)
+            {
+                cc.curCam = cc.firstCam.activeSelf ? cc.firstCam : cc.thirdCam;
+                
+                monster.SetActive(true);
+                
+                cc.curCam.SetActive(false);
+                enemyCam.SetActive(true);
+            }
         }
         else
         {
@@ -241,10 +310,30 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
+    public IEnumerator BuffNextState()
+    {
+        StartCoroutine(MakeTermEndText());
+
+        if (curState < State.End)
+        {
+            if (curState == State.Enemy)
+            {
+                enemyCam.SetActive(false);
+                cc.curCam.SetActive(true);
+            }
+            curState++;
+            curList = stringsList[(int)curState];
+        }
+        yield return new WaitForSeconds(2f);
+        GoToNextState();
+    }
+
 
     private void ShowText()
     {
         isShowingText = true;
+        
+        StopPlayer();
 
         if (textIndex < curList.Length)
         {
@@ -252,7 +341,25 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    
-    
+    public void SpawnMonster()
+    {
+        foreach (var mob in monsterList)
+        {
+            mob.SetActive(true);
+        }
+    }
+
+    public void StopPlayer()
+    {
+        Debug.Log("Stop Player");
+        player.rb.linearVelocity = Vector3.zero;
+        player.rb.AddForce(Vector3.down * 25f, ForceMode.Impulse);
+        player.pm.curState = PlayerMovement.MovementState.Idle;
+        player.pm.cam.DoTilt(0f);
+        player.pm.cam.DoFov(0);
+        player.pm.StateMachine();
+        player.pm.horizontalInput = 0;
+        player.pm.verticalInput = 0;
+    }
     
 }

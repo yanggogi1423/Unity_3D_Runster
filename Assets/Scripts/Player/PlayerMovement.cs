@@ -64,8 +64,8 @@ public class PlayerMovement : MonoBehaviour
     public Transform camOrientation;
 
     //  Member로 존재해야 한다.
-    private float horizontalInput;
-    private float verticalInput;
+    public float horizontalInput;
+    public float verticalInput;
 
     private Vector3 moveDirection;
 
@@ -192,6 +192,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        if (player.isTutorial && player.tm.isShowingText) return;
+        
         if (isUI)
         {
             SpeedControl();
@@ -231,7 +233,7 @@ public class PlayerMovement : MonoBehaviour
             MovePlayer(); // 자동 이동 허용
             return;
         }
-
+        
         MovePlayer();
         CheckNonBoostTime();
         speedText.SetText(rb.linearVelocity.magnitude + "\n" + curState);
@@ -272,34 +274,41 @@ public class PlayerMovement : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
         
         //  Checking Jump
-        if (Input.GetKey(jumpKey) && readyToJump && (isGrounded || isOnSlope))
+        if (player.isTutorial && !player.tm.isShowingText)
         {
-            readyToJump = false;
-            isGrounded = false; //  Important
-            curState = MovementState.Air;
-            anim.SetBool("isWalk", false);
-            anim.SetBool("isSprint", false);
-            anim.SetBool("isIdle", false);  //  Climb인 경우에는 상쇄된다.
+            if (Input.GetKey(jumpKey) && readyToJump && (isGrounded || isOnSlope))
+            {
+                readyToJump = false;
+                isGrounded = false; //  Important
+                curState = MovementState.Air;
+                anim.SetBool("isWalk", false);
+                anim.SetBool("isSprint", false);
+                anim.SetBool("isIdle", false);  //  Climb인 경우에는 상쇄된다.
 
-            Jump();
+                Jump();
+                if (player.tm.curState == TutorialManager.State.Jump)
+                {
+                    StartCoroutine(player.tm.BuffNextState());
+                }
             
-            //  nameof를 통해 함수 이름을 string으로 반환 가능 - 일정 시간 후 Jump 쿨타임 해제
-            Invoke(nameof(ResetJump), jumpCooldown);
+                //  nameof를 통해 함수 이름을 string으로 반환 가능 - 일정 시간 후 Jump 쿨타임 해제
+                Invoke(nameof(ResetJump), jumpCooldown);
+            }
         }
         
-        //  Start Crouch
-        if (Input.GetKeyDown(crouchKey))
-        {
-            transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
-            //  pivot을 중심으로 scale 축소되기에 floating되는 부분을 해결해야 한다.
-            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
-        }
-        
-        //  Stop Crouch
-        if (Input.GetKeyUp(crouchKey))
-        {
-            transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
-        }
+        // //  Start Crouch
+        // if (Input.GetKeyDown(crouchKey))
+        // {
+        //     transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
+        //     //  pivot을 중심으로 scale 축소되기에 floating되는 부분을 해결해야 한다.
+        //     rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+        // }
+        //
+        // //  Stop Crouch
+        // if (Input.GetKeyUp(crouchKey))
+        // {
+        //     transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+        // }
     }
     
     private AudioManager.Sfx? currentLoopSfx = null;
@@ -327,7 +336,7 @@ public class PlayerMovement : MonoBehaviour
 
 
 
-    private void StateMachine()
+    public void StateMachine()
     {
         switch (curState)
         {
@@ -457,6 +466,11 @@ public class PlayerMovement : MonoBehaviour
                 curState = MovementState.Sprinting;
                 cam.DoFov(1);
                 desiredMoveSpeed = sprintSpeed;
+
+                if (player.isTutorial && player.tm.curState == TutorialManager.State.Run)
+                {
+                    StartCoroutine(player.tm.BuffNextState());
+                }
             }
             else if (isGrounded)    //  Walk
             {

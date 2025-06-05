@@ -3,6 +3,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -27,8 +28,8 @@ public class Player : MonoBehaviour
 
     [Header("References")]
     public CapsuleCollider cc;
-    private PlayerMovement pm;
-    private Rigidbody rb;
+    public PlayerMovement pm;
+    public Rigidbody rb;
     private UltimateController ultimateController;
 
     [Header("Events")] //  Sync가 제대로 안맞는 문제가 존재.
@@ -53,11 +54,14 @@ public class Player : MonoBehaviour
     [SerializeField] private float ultimateOffset;
     [SerializeField] private bool isKillTime;
     
-    
     //  Coroutine
     private Coroutine boostCoroutine;
     private bool isBoostCharge;
     private Coroutine boostLessCoroutine;
+
+    [Header("Tutorial")]
+    public bool isTutorial = false;
+    public TutorialManager tm;
     
     private void Awake()
     {
@@ -90,6 +94,13 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody>();
 
         allowBoostConsume = true;
+
+        //  Tutorial
+        if (SceneManager.GetActiveScene().name == "Tutorial")
+        {
+            isTutorial = true;
+        }
+        else isTutorial = false;
     }
 
     private void Start()
@@ -103,8 +114,29 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        CheckAboutBoost();
-        CheckAboutUltimate();
+        if (!isHyper && rb.linearVelocity.magnitude > 13.5f && pm.curState != PlayerMovement.MovementState.Air)
+        {
+            isHyper = true;
+            hyperEffects.SetActive(true);
+        }
+        else if(isHyper && rb.linearVelocity.magnitude <= 13.5f)
+        {
+            isHyper = false;
+            hyperEffects.SetActive(false);
+        }
+        
+        if (isTutorial && tm.isShowingText) return;
+        
+        if (!isTutorial || (isTutorial && tm.curState > TutorialManager.State.Boost))
+        {
+            if(tm != null && !tm.isShowingText)
+                CheckAboutBoost();
+        }
+
+        if (!isTutorial || (isTutorial && tm.curState >= TutorialManager.State.PlayerUltimate))
+        {
+            CheckAboutUltimate();    
+        }
         
         //  Hyper
         if (!isHyper && rb.linearVelocity.magnitude > 13.5f && pm.curState != PlayerMovement.MovementState.Air)
@@ -150,7 +182,6 @@ public class Player : MonoBehaviour
 
         isInit = false;
     }
-
     
     private void NotEnoughBoost()
     {
@@ -201,10 +232,19 @@ public class Player : MonoBehaviour
         killedEnemies++;
         
         killTimer = maxKillTime;
+
+        if (isTutorial && tm.curState == TutorialManager.State.EnemyUltimate)
+        {
+            desireUltimate = Mathf.Clamp(desireUltimate + 100f,0f,maxUltimate);
         
-        desireUltimate = Mathf.Clamp(desireUltimate + ultimateOffset,0f,maxUltimate);
+            OnPlayerUltimateChanged.Invoke();
+        }
+        else
+        {
+            desireUltimate = Mathf.Clamp(desireUltimate + ultimateOffset,0f,maxUltimate);
         
-        OnPlayerUltimateChanged.Invoke();
+            OnPlayerUltimateChanged.Invoke();
+        }
 
         ultimateOffset += 1;
 
@@ -212,6 +252,12 @@ public class Player : MonoBehaviour
         {
             ultimateOffset = 15f;
         }
+    }
+
+    private void UltimateForTutorial()
+    {
+        desireUltimate = Mathf.Clamp(desireUltimate + ultimateOffset,0f,maxUltimate);
+        OnPlayerUltimateChanged.Invoke();
     }
 
     private void CheckAboutUltimate()

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class WallRunning : MonoBehaviour
@@ -115,7 +116,6 @@ public class WallRunning : MonoBehaviour
     {
         wallRight = Physics.SphereCast(transform.position, 0.3f, orientation.right, out rightWallHit, wallCheckDistance, wallLayer);
         wallLeft  = Physics.SphereCast(transform.position, 0.3f, -orientation.right, out leftWallHit, wallCheckDistance, wallLayer);
-
     }
 
     private bool AboveGround()
@@ -249,7 +249,17 @@ public class WallRunning : MonoBehaviour
         // Reset Camera Effects
         cam.DoFov(0);
         cam.DoTilt(0f);
-        
+
+        StartCoroutine(ForTutorialCoroutine());
+    }
+
+    private IEnumerator ForTutorialCoroutine()
+    {
+        yield return new WaitForSeconds(7f);
+        if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.WallRun)
+        {
+            StartCoroutine(pm.player.tm.BuffNextState());
+        }
     }
 
 

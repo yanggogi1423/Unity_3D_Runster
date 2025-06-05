@@ -27,24 +27,31 @@ public class InGameManager : MonoBehaviour
     [Header("MonsterSpawn")] public MonsterSpawner mons;
     public TMP_Text waveText;
     public TMP_Text waveTopText;
+
+    [Header("Player")] public Player player;
     
     private void Start()
     {
         currentTime = timeInSeconds;
+        
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
 
-        monsterList = GameObject.FindGameObjectsWithTag("Monster");
-        curMonster = maxMonster = monsterList.Length;
+        if (!player.isTutorial)
+        {
+            monsterList = GameObject.FindGameObjectsWithTag("Monster");
+            curMonster = maxMonster = monsterList.Length;
         
-        monsterText.SetText(curMonster + " / " + maxMonster);
+            monsterText.SetText(curMonster + " / " + maxMonster);
         
-        waveTopText.SetText(curWave + " / " + maxWave);
+            waveTopText.SetText(curWave + " / " + maxWave);
+        }
     }
 
     private void Update()
     {
         SetTime();
-
-        if (!isWaving)
+        
+        if (!isWaving && !player.isTutorial)
         {
             isWaving = true;
             

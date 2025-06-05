@@ -81,6 +81,7 @@ public class Climbing : MonoBehaviour
             if (!pm.climbing && climbTimer > 0)
             {
                 StartClimbing();
+                
             }
             
             //  Timer
@@ -148,6 +149,11 @@ public class Climbing : MonoBehaviour
     {
         pm.climbing = false;
         pm.anim.SetBool("isClimbing", false);
+        
+        if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.Climb && pm.player.tm.climbCheker)
+        {
+            StartCoroutine(pm.player.tm.BuffNextState());
+        }
     }
 
     private void ClimbJump()

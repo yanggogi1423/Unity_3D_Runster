@@ -38,6 +38,11 @@ public class PlayerSliding : MonoBehaviour
         if (Input.GetKeyDown(slideKey) && (horizontalInput != 0 || verticalInput != 0) && !pm.sliding)
         {
             StartSliding();
+            
+            if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.Slide)
+            {
+                StartCoroutine(pm.player.tm.BuffNextState());
+            }
         }
 
         if (Input.GetKeyUp(slideKey) && pm.sliding)

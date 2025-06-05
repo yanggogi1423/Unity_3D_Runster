@@ -131,7 +131,15 @@ public class DefaultMonster : MonoBehaviour
         
         de.agent.speed = 9.5f;
 
-        traceDist = 40f;
+        if (playerTarget.GetComponent<Player>().isTutorial)
+        {
+            traceDist = 0f;
+            attackDist = 0f;
+            patrolTimer = 3f;
+            de.agent.isStopped = true;
+        }
+        else
+            traceDist = 40f;
     }
 
     private void Start()
@@ -139,7 +147,8 @@ public class DefaultMonster : MonoBehaviour
         
         uc = playerTarget.GetComponent<UltimateController>();
         
-        inGameManager = GameObject.Find("InGameManager").GetComponent<InGameManager>();
+        if(!playerTarget.GetComponent<Player>().isTutorial)
+            inGameManager = GameObject.Find("InGameManager").GetComponent<InGameManager>();
         
         if (sphereRenderer != null)
         {
@@ -197,6 +206,11 @@ public class DefaultMonster : MonoBehaviour
             traceDist *= 15f;
 
             de.agent.speed = 11f;
+
+            if (playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.Attack)
+            {
+                StartCoroutine(playerTarget.GetComponent<Player>().tm.BuffNextState());
+            }
 
             UltimateMonster();
         }
@@ -366,7 +380,8 @@ public class DefaultMonster : MonoBehaviour
     {
         de.agent.isStopped = true;
         
-        inGameManager.UpdateMonsterText();
+        if(!playerTarget.GetComponent<Player>().isTutorial)
+            inGameManager.UpdateMonsterText();
         
         uc?.OnMonsterDead(transform); // CrossHair 제거
         
@@ -376,6 +391,18 @@ public class DefaultMonster : MonoBehaviour
         AudioManager.Instance.PlaySfx(AudioManager.Sfx.MonsterDie);
         
         StartCoroutine(FadeOutCoroutine());
+
+        if (playerTarget.GetComponent<Player>().isTutorial &&
+            playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.EnemyUltimate)
+        {
+            StartCoroutine(playerTarget.GetComponent<Player>().tm.BuffNextState());
+        }
+        
+        if (playerTarget.GetComponent<Player>().isTutorial &&
+            playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.PlayerUltimate)
+        {
+            playerTarget.GetComponent<Player>().tm.dieMonsters++;
+        }
         // StartCoroutine(ShakeCoroutine());
     }
 

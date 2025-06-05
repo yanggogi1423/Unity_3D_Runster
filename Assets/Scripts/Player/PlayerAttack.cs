@@ -38,7 +38,9 @@ public class PlayerAttack : MonoBehaviour
         fireTimer += Time.deltaTime;
 
         Detection();
-        CheckInput();
+        
+        if(!pm.player.tm.isShowingText)
+            CheckInput();
     }
 
     private void CheckInput()
