@@ -98,14 +98,23 @@ namespace MimicSpace
 
         void Update()
         {
+            // if (growTarget == 1 &&
+            //     Vector3.Distance(new Vector3(myMimic.legPlacerOrigin.x, 0, myMimic.legPlacerOrigin.z),
+            //         new Vector3(footPosition.x, 0, footPosition.z)) > maxLegDistance &&
+            //     canDie && myMimic.deployedLegs > myMimic.minimumAnchoredParts)
+            // {
+            //     growTarget = 0;
+            // }
             if (growTarget == 1 &&
                 Vector3.Distance(new Vector3(myMimic.legPlacerOrigin.x, 0, myMimic.legPlacerOrigin.z),
                     new Vector3(footPosition.x, 0, footPosition.z)) > maxLegDistance &&
-                canDie && myMimic.deployedLegs > myMimic.minimumAnchoredParts)
+                canDie &&
+                myMimic.deployedLegs > myMimic.minimumAnchoredParts + 2) // ✅ 여유를 줌
             {
+                Debug.LogWarning($"[삭제 조건 발동] dist={Vector3.Distance(new Vector3(myMimic.legPlacerOrigin.x, 0, myMimic.legPlacerOrigin.z),new Vector3(footPosition.x, 0, footPosition.z))}, deployed={myMimic.deployedLegs}");
                 growTarget = 0;
-            }
-
+            }    
+            
             progression = Mathf.Lerp(progression, growTarget, growCoef * Time.deltaTime);
             
             if (isAttackLeg && legLine != null && legLine.material.HasProperty("_Color"))

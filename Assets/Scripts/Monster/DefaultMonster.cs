@@ -334,7 +334,7 @@ public class DefaultMonster : MonoBehaviour
     {
         float timer = 0f;
         Vector3 originalScale = spawnParticle.transform.localScale;
-        de.agent.isStopped = true;
+        // de.agent.isStopped = true;
 
         while (timer < particleDuration)
         {

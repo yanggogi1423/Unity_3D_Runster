@@ -9,15 +9,15 @@ public class MonsterSpawner : MonoBehaviour
     [Header("Prefabs")]
     public GameObject monsterPrefab;
 
-    // public List<GameObject> monsterPool;
-    // public int initMonsterCnt = 50;
+    public List<GameObject> monsterPool;
+    public int initMonsterCnt = 50;
 
     [Header("Spawn Points")] public Transform[] spawnPointList;
 
     [Header("Attributes")] 
     public int[] maxMonster;
     
-    // public bool isInit = false;
+    public bool isInit = false;
 
     private void Start()
     {
@@ -35,7 +35,7 @@ public class MonsterSpawner : MonoBehaviour
     //
     //     isInit = true;
     // }
-
+    //
     // private void ResetList()
     // {
     //     for (int i = 0; i < monsterPool.Count; i++)
@@ -55,9 +55,12 @@ public class MonsterSpawner : MonoBehaviour
         for (int i = 0; i < maxMonster[curWave - 1]; i++)
         {
             GameObject mob = Instantiate(monsterPrefab, GetRandomSpawnPoint(), Quaternion.identity);
-            mob.SetActive(true);
+            // mob.SetActive(true);
+            //
+            // monsterPool[i].transform.position = GetRandomSpawnPoint();
+            // monsterPool[i].SetActive(true);
             
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(2f);
         }
         
     }

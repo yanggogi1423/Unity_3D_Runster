@@ -31,7 +31,7 @@ public class DefaultEnemyMovement : MonoBehaviour
         dm = GetComponent<DefaultMonster>();
 
         // NavMeshAgent의 Base Offset을 height로 설정
-        agent.baseOffset = height;
+        //  agent.baseOffset = height;
 
         // 플레이어 태그를 통해 타겟을 가져옴
         var playerObj = GameObject.FindGameObjectWithTag("Player");

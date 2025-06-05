@@ -56,9 +56,16 @@ namespace MimicSpace
         private float lastAttackTime;
         public Transform player;
 
+        void Awake()
+        {
+            // 초기값 보장
+            Vector2 randV = Random.insideUnitCircle;
+            velocity = new Vector3(randV.x, 0, randV.y);
+        }
+
         void Start()
         {
-            ResetMimic();
+            ResetMimic(); // legCount, deployedLegs 등은 여기서 초기화
             isDying = false;
             dm = GetComponent<DefaultMonster>();
         }
@@ -70,7 +77,7 @@ namespace MimicSpace
 
         private void OnEnable()
         {
-            Start();
+            ResetMimic();
         }
 
         private void ResetMimic()
@@ -96,10 +103,37 @@ namespace MimicSpace
             yield return new WaitForSeconds(newLegCooldown);
             canCreateLeg = true;
         }
+        
+        //  For Test
+        // void TestRaycast()
+        // {
+        //     Vector3 testPos = transform.position + Vector3.up * 20f;
+        //     RaycastHit hit;
+        //     int groundMask = ~LayerMask.GetMask("MimicBody", "LegPart");
+        //
+        //     if (Physics.Raycast(testPos, Vector3.down, out hit, 50f, groundMask))
+        //     {
+        //         Debug.Log("✅ Raycast 성공: " + hit.point);
+        //     }
+        //     else
+        //     {
+        //         Debug.LogError("❌ Raycast 실패! 현재 위치: " + transform.position);
+        //     }
+        // }
+
 
         void Update()
         {
             if (isDying || dm.isSpawning) return;
+
+            if (isDying) return;
+            
+            // TestRaycast();
+            
+            if (velocity == Vector3.zero)
+            {
+                Debug.LogWarning("⚠ Instantiate된 Mimic의 velocity가 0입니다!");
+            }
 
             if (dm.curState.ToString() == "Attack" && player != null)
             {
@@ -141,8 +175,9 @@ namespace MimicSpace
 
                 int groundMask = ~LayerMask.GetMask("MimicBody", "LegPart");
 
+                //  Default : 10 -> 20로 변경
                 RaycastHit hit;
-                Physics.Raycast(newLegPosition + Vector3.up * 10f, -Vector3.up, out hit, Mathf.Infinity, groundMask);
+                Physics.Raycast(newLegPosition + Vector3.up * 20f, -Vector3.up, out hit, Mathf.Infinity, groundMask);
 
                 Vector3 myHit = hit.point;
                 if (Physics.Linecast(transform.position, hit.point, out hit, groundMask))
