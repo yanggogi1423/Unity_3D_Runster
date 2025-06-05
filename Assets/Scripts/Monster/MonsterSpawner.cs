@@ -10,7 +10,7 @@ public class MonsterSpawner : MonoBehaviour
     public GameObject monsterPrefab;
 
     public List<GameObject> monsterPool;
-    public int initMonsterCnt = 50;
+    public int initMonsterCnt = 30;
 
     [Header("Spawn Points")] public Transform[] spawnPointList;
 
@@ -21,46 +21,46 @@ public class MonsterSpawner : MonoBehaviour
 
     private void Start()
     {
-        // SetMonsterSet();
+        SetMonsterSet();
     }
 
-    // private void SetMonsterSet()
-    // {
-    //     for (int i = 0; i < initMonsterCnt; i++)
-    //     {
-    //         GameObject mob = Instantiate(monsterPrefab);
-    //         mob.SetActive(false);
-    //         monsterPool.Add(mob);
-    //     }
-    //
-    //     isInit = true;
-    // }
-    //
-    // private void ResetList()
-    // {
-    //     for (int i = 0; i < monsterPool.Count; i++)
-    //     {
-    //         Destroy(monsterPool[i]);
-    //     }
-    //     
-    //     monsterPool.Clear();
-    //     
-    //     SetMonsterSet();
-    // }
+    private void SetMonsterSet()
+    {
+        for (int i = 0; i < initMonsterCnt; i++)
+        {
+            GameObject mob = Instantiate(monsterPrefab);
+            mob.SetActive(false);
+            monsterPool.Add(mob);
+        }
+    
+        isInit = true;
+    }
+    
+    private void ResetList()
+    {
+        for (int i = 0; i < monsterPool.Count; i++)
+        {
+            Destroy(monsterPool[i]);
+        }
+        
+        monsterPool.Clear();
+        
+        SetMonsterSet();
+    }
 
     public IEnumerator SpawnMonster(int curWave)
     {
-        // ResetList();
+        ResetList();
         
         for (int i = 0; i < maxMonster[curWave - 1]; i++)
         {
-            GameObject mob = Instantiate(monsterPrefab, GetRandomSpawnPoint(), Quaternion.identity);
+            // GameObject mob = Instantiate(monsterPrefab, GetRandomSpawnPoint(), Quaternion.identity);
             // mob.SetActive(true);
-            //
-            // monsterPool[i].transform.position = GetRandomSpawnPoint();
-            // monsterPool[i].SetActive(true);
             
-            yield return new WaitForSeconds(2f);
+            monsterPool[i].transform.position = GetRandomSpawnPoint();
+            monsterPool[i].SetActive(true);
+            
+            yield return new WaitForSeconds(0.1f);
         }
         
     }

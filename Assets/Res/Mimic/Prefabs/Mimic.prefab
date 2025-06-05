@@ -409,7 +409,7 @@ MonoBehaviour:
   minGrowCoef: 4.5
   maxGrowCoef: 6.5
   newLegCooldown: 0.3
-  velocity: {x: 0.8400898, y: 0, z: 0.48792183}
+  velocity: {x: -0.16663836, y: 0, z: -0.12608548}
   dm: {fileID: 0}
   legLineList: []
   isDying: 0
@@ -450,7 +450,7 @@ MonoBehaviour:
   curHp: 0
   attackPower: 10
   fadeDuration: 2
-  traceDist: 50
+  traceDist: 30
   attackDist: 3
   patrolRadius: 20
   patrolWaitTime: 3

@@ -94,7 +94,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 8b02708fb7d6a95428d63f74dd025165, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -631,6 +631,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2059952712522628622, guid: 0ed7b8dfa9e1e6749a6f2fa1b7cea707, type: 3}
+      propertyPath: m_NavMeshData
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8456194527107900531, guid: 0ed7b8dfa9e1e6749a6f2fa1b7cea707, type: 3}
       propertyPath: m_Name
       value: Floor
@@ -669,7 +673,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a31cc1ee159244b3971b20a9a96e5af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canProceed: 0
   isTutorial: 0
 --- !u!4 &564453917
 Transform:
@@ -2895,7 +2898,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Latest Update v.20250602 by an_yan_yang Sejong Univ.
+  m_text: Latest Update v.20250606 by an_yan_yang Sejong Univ.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

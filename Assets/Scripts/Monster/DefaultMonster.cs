@@ -140,8 +140,6 @@ public class DefaultMonster : MonoBehaviour
             patrolTimer = 3f;
             de.agent.isStopped = true;
         }
-        else
-            traceDist = 40f;
     }
 
     private void Start()
