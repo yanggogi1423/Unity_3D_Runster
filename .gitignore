@@ -75,3 +75,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 *.zip
+
+Assets/Scenes/InGame/LightingData.asset
+
