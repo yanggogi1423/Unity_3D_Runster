@@ -372,7 +372,7 @@ public class TutorialManager : MonoBehaviour
 
     public void StopPlayer()
     {
-        Debug.Log("Stop Player");
+        // Debug.Log("Stop Player");
         player.rb.linearVelocity = Vector3.zero;
         player.rb.AddForce(Vector3.down * 2, ForceMode.Impulse);
         player.pm.curState = PlayerMovement.MovementState.Idle;

@@ -125,6 +125,7 @@ public class Climbing : MonoBehaviour
         bool newWall = frontWallHit.transform != lastWall ||
                        Mathf.Abs(Vector3.Angle(lastWallNormal, frontWallHit.normal)) > minWallNormalAngleChange;
         
+        // Debug.Log($"Wall Front : {wallFront}");
         
         //  Reset Climb Timer
         if ((wallFront && newWall) || pm.isGrounded)
@@ -147,15 +148,6 @@ public class Climbing : MonoBehaviour
 
         lastWall = frontWallHit.transform;
         lastWallNormal = frontWallHit.normal;
-        
-        if (pm.player.tm != null)
-        {
-            if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.Climb 
-                                     && pm.player.tm.climbChecker  && !pm.player.tm.isShowingText && climbCoroutine == null)
-            {
-                climbCoroutine = StartCoroutine(ForTutorialCoroutine());
-            }
-        }
     }
 
     private IEnumerator ForTutorialCoroutine()
@@ -175,8 +167,15 @@ public class Climbing : MonoBehaviour
         pm.climbing = false;
         pm.anim.SetBool("isClimbing", false);
 
-        
-        
+        if (pm.player.tm != null)
+        {
+            if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.Climb 
+                                     && pm.player.tm.climbChecker  && !pm.player.tm.isShowingText && climbCoroutine == null)
+            {
+                Debug.Log("Climbing Tutorial Start!");
+                climbCoroutine = StartCoroutine(ForTutorialCoroutine());
+            }
+        }
     }
 
     private void ClimbJump()
