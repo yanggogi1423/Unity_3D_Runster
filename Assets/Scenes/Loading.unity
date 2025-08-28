@@ -152,9 +152,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 757176488}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1309.8665, y: -768.78925}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -461.86313}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &126980521
@@ -191,18 +191,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "[\uD50C\uB808\uC774 \uBC29\uBC95]\n- \uD50C\uB808\uC774\uC5B4\uB294 Boost
-    \uAC8C\uC774\uC9C0\uB97C \uCC44\uC6CC\uC57C \uC0B4\uC544\uB0A8\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4.\n-
-    Boost\uB294 \uB2EC\uB9AC\uAE30, \uBCBD \uB2EC\uB9AC\uAE30\uB97C \uD1B5\uD574
-    \uCC44\uC6B8 \uC218 \uC788\uC2B5\uB2C8\uB2E4.\n- Boost\uB294 \uBB34\uAE30\uC758
-    \uC5D0\uB108\uC9C0\uB85C \uC0AC\uC6A9\uB418\uACE0, \uBD80\uC871\uD560 \uC2DC
-    \uC0DD\uBA85 \uC720\uC9C0 \uC7A5\uCE58\uAC00 \uAEBC\uC9D1\uB2C8\uB2E4.\n- \uAD81\uADF9\uAE30\uB294
-    \uC801\uB4E4\uC744 \uC77C\uC815\uC2DC\uAC04\uB3D9\uC548 \uC801\uB4E4\uC744 \uC790\uB3D9\uC870\uC900\uD569\uB2C8\uB2E4.\n-
-    \uAD81\uADF9\uAE30\uB294 \uC801\uC744 \uCC98\uCE58\uD568\uC73C\uB85C \uAC8C\uC774\uC9C0\uB97C
-    \uCC44\uC6B8 \uC218 \uC788\uC2B5\uB2C8\uB2E4.\n- \uD50C\uB808\uC774 \uBC29\uBC95
-    \uBC0F \uC870\uC791\uBC95\uC740 \uAC8C\uC784 \uB0B4 \uBA54\uB274\uC5D0\uC11C
-    \uC7AC\uD655\uC778 \uAC00\uB2A5\uD569\uB2C8\uB2E4.\n- \uD544\uB4DC \uB0B4 \uBAA8\uB4E0
-    \uC801\uC744 \uCC98\uCE58\uD558\uC2ED\uC2DC\uC624.\n\n"
+  m_text: "[Tip] esc \uD0A4\uB97C \uB20C\uB7EC \uC870\uC791\uBC95 \uD655\uC778\uACFC
+    \uAC10\uB3C4 \uC870\uC808\uC744 \uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.\n\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: cf00adf54ee458442a4ab52711a4d9a7, type: 2}
   m_sharedMaterial: {fileID: 4877919644651952202, guid: cf00adf54ee458442a4ab52711a4d9a7, type: 2}
@@ -353,11 +343,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "[\uC870\uC791\uBC95]\n\uC774\uB3D9 | WASD\t\t\uACF5\uACA9 | \uC88C\uD074\uB9AD\n\uB2EC\uB9AC\uAE30
-    | Shift\t\t\uAD81\uADF9\uAE30 | R\n\uC2AC\uB77C\uC774\uB529 | Ctrl\t\t\uC2DC\uC810\uBCC0\uD658
-    | T\n\uC810\uD504 | Space\t\t\uBA54\uB274 | ESC\n\n[\uD2B9\uC218 \uC870\uC791\uBC95]\n\uC0C1\uD5A5
-    \uBCBD\uD0C0\uAE30 | Shift\n\uD558\uD5A5 \uBCBD\uD0C0\uAE30 | Ctrl\n\uBCBD \uC624\uB974\uAE30
-    | Space\n\n"
+  m_text: '
+
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: cf00adf54ee458442a4ab52711a4d9a7, type: 2}
   m_sharedMaterial: {fileID: 4877919644651952202, guid: cf00adf54ee458442a4ab52711a4d9a7, type: 2}
@@ -471,7 +460,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 650, y: -250}
+  m_AnchoredPosition: {x: 670.98035, y: -502.483}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &491587268
@@ -774,6 +763,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pressContainer: {fileID: 1364952944}
+  canProceed: 0
 --- !u!4 &648414545
 Transform:
   m_ObjectHideFlags: 0

@@ -19,6 +19,8 @@ public class OpeningDirector : MonoBehaviour
     public Button startButton;
     public Button exitButton;
 
+    public GameObject infoContainer;
+
     private string[] titleFake =
     {
         "XUJETOA", "PLAKSEN", "NURQTAZ", "ZERUMON", "KAWRELS",
@@ -82,5 +84,15 @@ public class OpeningDirector : MonoBehaviour
     public void OnStartButtonClick()
     {
         SceneController.Instance.LoadLoadingScene(true);
+    }
+
+    public void OnInfoButtonClick()
+    {
+        infoContainer.SetActive(!infoContainer.activeSelf);
+    }
+
+    public void OnGitHubLinkClick()
+    {
+        Application.OpenURL("https://github.com/yanggogi1423/Unity_3D_Runster");
     }
 }
