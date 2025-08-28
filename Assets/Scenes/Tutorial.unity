@@ -39471,6 +39471,10 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8193386916608791545, guid: a896c36b3c6bf31428e78efca89e0b32, type: 3}
+      propertyPath: maxUltimate
+      value: 99.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8193386916608791545, guid: a896c36b3c6bf31428e78efca89e0b32, type: 3}
       propertyPath: OnPlayerHpChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1705804281}

@@ -463,11 +463,11 @@ public class DefaultMonster : MonoBehaviour
                 playerTarget.GetComponent<Player>().tm.dieMonsters++;
             }
         }
-        if (playerTarget.GetComponent<Player>().isTutorial &&
-            playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.PlayerUltimate)
-        {
-            playerTarget.GetComponent<Player>().tm.dieMonsters++;
-        }
+        // if (playerTarget.GetComponent<Player>().isTutorial &&
+        //     playerTarget.GetComponent<Player>().tm.curState == TutorialManager.State.PlayerUltimate)
+        // {
+        //     playerTarget.GetComponent<Player>().tm.dieMonsters++;
+        // }
 
         SetAlpha(0f);
         //  For Object Pooling

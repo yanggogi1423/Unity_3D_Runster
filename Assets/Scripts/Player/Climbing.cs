@@ -148,12 +148,19 @@ public class Climbing : MonoBehaviour
         lastWall = frontWallHit.transform;
         lastWallNormal = frontWallHit.normal;
         
-        
+        if (pm.player.tm != null)
+        {
+            if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.Climb 
+                                     && pm.player.tm.climbChecker  && !pm.player.tm.isShowingText && climbCoroutine == null)
+            {
+                climbCoroutine = StartCoroutine(ForTutorialCoroutine());
+            }
+        }
     }
 
     private IEnumerator ForTutorialCoroutine()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(10f);
         StartCoroutine(pm.player.tm.BuffNextState());
     }
 
@@ -168,14 +175,7 @@ public class Climbing : MonoBehaviour
         pm.climbing = false;
         pm.anim.SetBool("isClimbing", false);
 
-        if (pm.player.tm != null)
-        {
-            if (pm.player.isTutorial && pm.player.tm.curState == TutorialManager.State.Climb 
-                                     && pm.player.tm.climbChecker  && !pm.player.tm.isShowingText && climbCoroutine == null)
-            {
-                climbCoroutine = StartCoroutine(ForTutorialCoroutine());
-            }
-        }
+        
         
     }
 

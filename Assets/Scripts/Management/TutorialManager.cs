@@ -374,7 +374,7 @@ public class TutorialManager : MonoBehaviour
     {
         Debug.Log("Stop Player");
         player.rb.linearVelocity = Vector3.zero;
-        player.rb.AddForce(Vector3.down, ForceMode.Impulse);
+        player.rb.AddForce(Vector3.down * 2, ForceMode.Impulse);
         player.pm.curState = PlayerMovement.MovementState.Idle;
         player.pm.cam.DoTilt(0f);
         player.pm.cam.DoFov(0);

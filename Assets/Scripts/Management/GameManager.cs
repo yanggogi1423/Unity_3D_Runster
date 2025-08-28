@@ -15,10 +15,10 @@ public class GameManager : Singleton<GameManager>
 
     private void Awake()
     {
-        originX = 4f;
-        originY = 4f;
-        curX = originX * 0.5f;
-        curY = originY * 0.5f;
+        originX = 1f;
+        originY = 1f;
+        curX = originX * 0.75f;
+        curY = originY * 0.75f;
     }
 
 }

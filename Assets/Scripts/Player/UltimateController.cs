@@ -43,7 +43,7 @@ public class UltimateController : MonoBehaviour
 
         playerAttack = GetComponent<PlayerAttack>();
 
-        // --- 프리팹 바로 위에 붙어 있는 Image 컴포넌트에서 기본 색상을 읽어옵니다. ---
+        //  프리팹 바로 위에 붙어 있는 Image 컴포넌트에서 기본 색상을 읽어옵니다.
         var prefabImage = ultimateCrossHairPrefab.GetComponent<Image>();
         defaultCrossHairColor = prefabImage.color;
 
